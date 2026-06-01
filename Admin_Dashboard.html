@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="Admin_Dashboard.css">
+</head>
+<body style="background-color: #f3f3f3">
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-logo">
+        Fit & Aktive
+    </div>
+    <p class="navbar-text">Admin Dashboard</p>
+    <!-- Right -->
+    <div class="navbar-right">
+        <img src="images/notification.png" class="navbar-icons">
+        <img src="images/user.png" class="navbar-icons">
+    </div>
+</nav>
+
+<!-- info -->
+<div class="info-container">
+    <div class="info">
+        <img src="images/aktiv.png" class="info-icons">
+        <div class="info-content">
+            <p class="info-text" style="color: gray">Aktive Trainer</p>
+            <p class="info-text" style="font-weight: bold;"> 24</p>
+            <p class="info-text" style="color: gray">2 krank gemeldet</p>
+        </div>
+    </div>
+    <div class="info">
+        <img src="images/costumer.png" class="info-icons">
+        <div class="info-content">
+            <p class="info-text" style="color: gray">Registrierte Kunden</p>
+            <p class="info-text" style="font-weight: bold;"> 1.247</p>
+            <p class="info-text" style="color: gray">+18 diese Woche</p>
+        </div>
+    </div>
+    <div class="info">
+        <img src="images/class.png" class="info-icons">
+        <div class="info-content">
+            <p class="info-text" style="color: gray">Heutige Kurse</p>
+            <p class="info-text" style="font-weight: bold;"> 12</p>
+            <p class="info-text" style="color: gray">Kurse</p>
+        </div>
+    </div>
+    <div class="info">
+        <img src="images/costumer.png" class="info-icons">
+        <div class="info-content">
+            <p class="info-text" style="color: gray">Heutige Stansorte</p>
+            <p class="info-text" style="font-weight: bold;"> 3</p>
+            <p class="info-text" style="color: gray">Alle Aktiv</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- Trainer-system -->
+<div class="trainer-system-contaners">
+
+    <div class="trainer-table">
+        <p class="table-text">Trainer Übersicht</p>
+        <button class="add-trainer-btn">+ Trainer hinzufügen</button>
+
+        <div class="inner-table">
+            <table class="schedule-table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Beschäftigung</th>
+                    <th>Stunden/Wo</th>
+                    <th>Status</th>
+                    <th>Aktion</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <button class="alle-anzeige-button">Alle anzeigen</button>
+    </div>
+
+    <div class="notification-table">
+        <p class="table-text">Systembenachrichtigungen</p>
+
+        <div class="inner-table"></div>
+
+        <button class="alle-anzeige-button">Alle anzeigen</button>
+    </div>
+
+</div>
+
+
+<!-- Heutige Kursen -->
+<div class="class-contaners">
+    <div class="trainer-table">
+        <p class="table-text">Heutige Kurse</p>
+        <button class="add-trainer-btn">+ Kurs erstellen</button>
+
+        <div class="inner-table" style="height: 90%">
+            <table class="schedule-table">
+                <thead>
+                <tr>
+                    <th>Zeit</th>
+                    <th>Kurs</th>
+                    <th>Trainer</th>
+                    <th>Raum</th>
+                    <th>Studio</th>
+                    <th>Teilnehmer</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- end -->
+<div class="end">
+    <p>Fit & Aktiv Scheduling System</p>
+    <p>Version 1.0.0 | © 2026 Fit & Aktiv</p>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+/* Navbar */
+.navbar {
+    top: 15px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* logo at left, items at right */
+    align-items: center;
+    padding: 25px 45px; /* distances from left and up */
+    background-color: white; /* transaprent */
+    border: 1px solid black;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+
+.navbar-logo {
+    color: black;
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.navbar-text{
+    color: black;
+    text-align: center;
+    font-size: 30px;
+    margin: 0px;
+}
+
+.navbar-icons{
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+    margin-left: 20px;
+}
