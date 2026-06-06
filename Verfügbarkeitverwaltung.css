@@ -1,0 +1,278 @@
+/* Navbar */
+.navbar {
+    top: 15px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* logo at left, items at right */
+    align-items: center;
+    padding: 25px 45px; /* distances from left and up */
+    background-color: white; /* transaprent */
+    border: 1px solid black;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+
+.navbar-logo {
+    color: black;
+    font-weight: bold;
+    font-size: 30px;
+
+}
+
+.navbar-text{
+    color: black;
+    text-align: center;
+    font-size: 30px;
+    margin: 0px;
+    font-family: sans-serif;
+}
+
+.navbar-icons{
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+    margin-left: 20px;
+}
+
+
+/* Meine Verfügbarkeit */
+.meine_verfuegbarkeit_container{
+    margin-top: 15px;
+    padding: 15px 25px;
+
+    border: 1px solid black;
+    border-radius: 20px;
+    background-color: white;
+
+    display: flex;
+    align-items: center;
+    gap: 25px;
+
+    box-sizing: border-box;
+}
+
+.titles{
+    font-size: 20px;
+    font-weight: bold;
+    font-family: sans-serif;
+    margin: 0;
+    white-space: nowrap;
+    padding: 30px;
+}
+
+.gray_text{
+    color: gray;
+    font-size: 15px;
+    font-family: sans-serif;
+    margin: 0;
+}
+
+.week-buttons{
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+.vorherig-neachste-button{
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 8px;
+    width: 140px;
+    height: 45px;
+}
+
+
+/* left side-wochenübersicht */
+
+.content_container{
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.wochen_container{
+    flex: 7;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    height: 800px;
+}
+
+.legend{
+    display: flex;
+    gap: 8px;
+    padding-left: 30px;
+    font-family: sans-serif;
+    font-size: 14px;
+}
+
+.legend div{
+    display: flex;
+    align-items: center;
+}
+
+.box{
+    width: 15px;
+    height: 15px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    margin-right: 4px;
+}
+
+.available{
+    background-color: #cfeedd;
+}
+
+.assigned{
+    background-color: #cfe5ff;
+}
+
+.unavailable{
+    background-color: #eeeeee;
+}
+
+.absent{
+    background-color: #f5cfd5;
+}
+
+/* Table */
+.week-table{
+    width: 95%;
+    margin: 20px auto;
+    border-collapse: collapse;
+}
+
+.week-table th,
+.week-table td{
+    border: 1px solid #dcdcdc;
+    width: 80px;
+    height: 50px;
+    text-align: center;
+}
+
+.week-table td{
+    background-color: #eeeeee;
+}
+
+.week-table td:first-child{
+    background-color: white;
+}
+
+
+/* right side */
+.right_side{
+    flex: 3;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+
+/* answesenheit melden */
+.anwesenheit_melden{
+    background-color: white;
+
+    border: 1px solid black;
+    border-radius: 20px;
+
+    height: 380px;
+
+    box-sizing: border-box;
+}
+
+.absence-form{
+    padding: 0 30px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: sans-serif;
+}
+
+.absence-form label{
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.absence-form select,
+.absence-form input,
+.absence-form textarea{
+    width: 100%;
+    border: 1px solid #aaa;
+    border-radius: 8px;
+    padding: 8px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.date-row{
+    display: flex;
+    gap: 10px;
+}
+
+.date-row div{
+    flex: 1;
+}
+
+.absence-form textarea{
+    height: 65px;
+    resize: none;
+}
+
+.absence-form button{
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    background-color: black;
+    color: white;
+    font-size: 15px;
+}
+
+/* gemeldete_anwesenheit */
+
+.gemeldete_anwesenheit{
+    background-color: white;
+
+    border: 1px solid black;
+    border-radius: 20px;
+
+    height: 220px;
+
+    box-sizing: border-box;
+}
+
+
+
+
+/* end part */
+.end{
+    margin-top: 20px;
+    width: 100%;
+    height: 70px;
+
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: white;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 50px;
+    box-sizing: border-box;
+
+    position: relative;
+    color: gray;
+}
+
+.end p{
+    margin: 0;
+}
+
+.end p:last-child{
+    position: absolute;
+    left: 85%;
+    transform: translateX(-50%);
+}

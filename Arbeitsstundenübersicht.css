@@ -1,0 +1,388 @@
+/* Navbar-how to run it? */
+.navbar {
+    top: 15px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* logo at left, items at right */
+    align-items: center;
+    padding: 25px 45px; /* distances from left and up */
+    background-color: white; /* transaprent */
+    border: 1px solid black;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+
+.navbar-logo {
+    color: black;
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.navbar-text{
+    color: black;
+    text-align: center;
+    font-size: 30px;
+    margin: 0px;
+    font-family: sans-serif;
+}
+
+.navbar-icons{
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+    margin-left: 20px;
+}
+
+
+/*-- information */
+.info-container{
+    display: flex;
+    margin-top: 10px;
+    gap: 15px;
+}
+
+.info{
+    flex: 1;
+    height: 150px;
+
+    border: 1px solid black;
+    border-radius: 20px;
+    background-color: white;
+
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+
+    gap: 35px;
+    padding: 25px 45px;
+}
+
+.info-content{
+    display: flex;
+    flex-direction: column;
+}
+
+.info-text{
+    font-size: 20px;
+    margin: 6px 0;
+    font-family: sans-serif;
+}
+
+.hours{
+    font-size: 30px;
+    font-weight: bold;
+    margin: 6px 0;
+    font-family: sans-serif;
+    color: black;
+}
+
+.hours span{
+    color: gray;
+    font-weight: 600;
+    font-size: 23px;
+}
+
+.progress-bg{
+    width: 100%;
+    height: 12px;
+    background: #e5e5e5;
+    border-radius: 20px;
+    margin: 8px 0;
+}
+
+.progress-yellow{
+    width: 90%;
+    height: 100%;
+    background: #f4c20d;
+    border-radius: 20px;
+}
+
+.progress-green{
+    width: 90%;
+    height: 100%;
+    background: #34a853;
+    border-radius: 20px;
+}
+
+.progress-gray{
+    width: 20%;
+    height: 100%;
+    background: #9e9e9e;
+    border-radius: 20px;
+}
+
+
+/* container for left and right sides */
+.content_container{
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+
+.titles{
+    font-size: 20px;
+    font-weight: bold;
+    font-family: sans-serif;
+    margin: 0;
+    white-space: nowrap;
+    padding: 30px;
+}
+
+/*-----Left side------*/
+/* right side */
+.left_side{
+    flex: 7;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 15px;
+}
+/* Arbeitsstunden */
+.stunden_container{
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    height: 320px;
+}
+
+.stunden-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.month-buttons{
+    margin-right: 30px;
+}
+
+.month-buttons button{
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.bar-chart{
+    height: 190px;
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+    padding: 20px 40px 0 40px;
+}
+
+.bar-item{
+    width: 200px;
+    text-align: center;
+    font-family: sans-serif;
+}
+
+.bar-item p{
+    margin: 0 0 5px 0;
+    font-weight: bold;
+}
+
+.bar{
+    width: 200px;
+    border-radius: 6px 6px 0 0;
+}
+
+.blue{
+    background-color: #4a90e2;
+}
+
+.lightblue{
+    background-color: #7fb2e8;
+}
+
+.yellow{
+    background-color: #f4c20d;
+}
+
+.empty{
+    background-color: #ddd;
+    border-radius: 10px;
+}
+
+.bar-item span{
+    color: gray;
+    font-size: 14px;
+}
+
+.chart-note{
+    text-align: center;
+    color: gray;
+    font-family: sans-serif;
+    margin-top: 5px;
+}
+
+/* Wochendetails */
+.wochen_container{
+    background-color: white;
+
+    border: 1px solid black;
+    border-radius: 20px;
+
+    height: 600px;
+
+    box-sizing: border-box;
+}
+
+.details-table{
+    width: calc(100% - 60px);
+    margin: 0 30px;
+    border-collapse: collapse;
+    font-family: sans-serif;
+    color: gray;
+}
+
+.details-table th,
+.details-table td{
+    border-bottom: 1px solid #ddd;
+    padding: 14px 10px;
+    text-align: left;
+}
+
+.details-table th{
+    font-weight: bold;
+}
+
+/*-----Right side-----*/
+/* right side */
+.right_side{
+    flex: 3;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+/* Monatübersicht */
+.monat_container{
+    background-color: white;
+
+    border: 1px solid black;
+    border-radius: 20px;
+
+    height: 400px;
+
+    box-sizing: border-box;
+}
+.month-list{
+    padding: 0 30px;
+    font-family: sans-serif;
+}
+
+.month-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding: 12px 0;
+}
+
+.month-right p{
+    white-space: nowrap;
+}
+
+
+
+.kw{
+    font-weight: bold;
+    font-size: 18px;
+    margin: 0;
+}
+
+.date{
+    color: gray;
+    margin: 4px 0 0 0;
+}
+
+.month-right{
+    text-align: right;
+}
+
+
+.status{
+    display: inline-block;
+    margin-top: 5px;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.ok{
+    background-color: #cfeedd;
+    color: green;
+}
+
+.reduced,
+.running{
+    background-color: #fff1b8;
+    color: #8a6d00;
+}
+
+
+/* meine kursen */
+.meine_kursen_container{
+    background-color: white;
+
+    border: 1px solid black;
+    border-radius: 20px;
+
+    height: 220px;
+
+    box-sizing: border-box;
+}
+
+.meine_kursen_container .details-table{
+    width: calc(100% - 120px);
+}
+
+.meine_kursen_container th:first-child,
+.meine_kursen_container td:first-child{
+    text-align: left;
+}
+
+.meine_kursen_container th:last-child,
+.meine_kursen_container td:last-child{
+    text-align: right;
+}
+
+
+/* end part */
+.end{
+    margin-top: 20px;
+    width: 100%;
+    height: 70px;
+
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: white;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 50px;
+    box-sizing: border-box;
+
+    position: relative;
+    color: gray;
+}
+
+.end p{
+    margin: 0;
+}
+
+.end p:last-child{
+    position: absolute;
+    left: 85%;
+    transform: translateX(-50%);
+}

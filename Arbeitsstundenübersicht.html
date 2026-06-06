@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Arbeitsstundenübersicht</title>
+    <link rel="stylesheet" href="Arbeitsstundenübersicht.css">
+</head>
+<body style="background-color: #f3f3f3">
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-logo">
+        Fit & Aktive
+    </div>
+    <p class="navbar-text">Arbeitsstundenübersicht</p>
+    <!-- Right -->
+    <div class="navbar-right">
+        <img src="images/notification.png" class="navbar-icons">
+        <img src="images/user.png" class="navbar-icons">
+    </div>
+</nav>
+
+
+<!-- info -->
+<div class="info-container">
+    <div class="info">
+        <div class="info-content">
+            <p class="info-text" style="color: gray">Diese Woche</p>
+            <p class="hours">XX <span>/ XX h</span></p>
+
+            <div class="progress-bg">
+                <div class="progress-yellow"></div>
+            </div>
+
+            <p class="info-text" style="color: darkgray; font-size: 17px">X Stunden verbleibend</p>
+        </div>
+    </div>
+    <div class="info">
+        <div class="info-content">
+            <p class="info-text" style="color: gray">Diese Monat</p>
+            <p class="hours">XX <span>/ XX h</span></p>
+
+            <div class="progress-bg">
+                <div class="progress-green"></div>
+            </div>
+
+            <p class="info-text" style="color: darkgray; font-size: 17px">X Stunden verbleibend</p>
+        </div>
+    </div>
+    <div class="info">
+        <div class="info-content">
+            <p class="info-text" style="color: gray">Fahrtzeit (diese Woche)</p>
+            <p class="hours">X <span>h</span></p>
+
+            <div class="progress-bg">
+                <div class="progress-gray"></div>
+            </div>
+
+            <p class="info-text" style="color: darkgray; font-size: 17px">Zwichen Studios angerechnet</p>
+        </div>
+    </div>
+    <div class="info">
+        <div class="info-content">
+            <p class="info-text" style="color: gray">Heute gearbeitet</p>
+            <p class="hours">X <span>h</span></p>
+
+            <div class="progress-bg">
+                <div class="progress-green"></div>
+            </div>
+
+            <p class="info-text" style="color: darkgray; font-size: 17px">XX:XX - XX:XX geplant</p>
+        </div>
+    </div>
+</div>
+
+<div class="content_container">
+
+    <!-- left side -->
+    <div class="left_side">
+        <!-- -Arbeitsstunden -->
+        <div class="stunden_container">
+            <div class="stunden-header">
+                <p class="titles">Arbeitsstunden - MONAT XXXX</p>
+
+                <div class="month-buttons">
+                    <button>← April</button>
+                    <button>Juni →</button>
+                </div>
+            </div>
+
+            <div class="bar-chart">
+                <div class="bar-item">
+                    <p>XXh</p>
+                    <div class="bar blue" style="height: 120px;"></div>
+                    <span>KW XX</span>
+                </div>
+
+                <div class="bar-item">
+                    <p>XXh</p>
+                    <div class="bar blue" style="height: 140px;"></div>
+                    <span>KW XX</span>
+                </div>
+
+                <div class="bar-item">
+                    <p>XXh</p>
+                    <div class="bar yellow" style="height: 100px;"></div>
+                    <span>KW XX</span>
+                </div>
+
+                <div class="bar-item">
+                    <p>XXh</p>
+                    <div class="bar lightblue" style="height: 120px;"></div>
+                    <span>KW XX</span>
+                </div>
+
+                <div class="bar-item">
+                    <p>XXh</p>
+                    <div class="bar empty" style="height: 15px;"></div>
+                    <span>KW XX</span>
+                </div>
+            </div>
+
+            <p class="chart-note">Maximale Wochenstunden: XX h (Teilzeit oder Vollzeit?????)</p>
+        </div>
+
+        <!-- Wochendetails -->
+        <div class="wochen_container">
+            <p class="titles">Wochendetails - KW XX</p>
+
+            <table class="details-table">
+                <thead>
+                <tr>
+                    <th>Tag</th>
+                    <th>Kurs</th>
+                    <th>Zeit</th>
+                    <th>Dauer</th>
+                    <th>Fahrtzeit</th>
+                    <th>Gesamt</th>
+                </tr>
+                </thead>
+
+                <tbody id="details-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+    <!-- right side -->
+    <div class="right_side">
+        <!-- Monatübersicht -->
+        <div class="monat_container">
+            <p class="titles">Monatübersicht</p>
+
+            <div class="month-list">
+
+                <div class="month-row">
+                    <div>
+                        <p class="kw">KW XX</p>
+                        <p class="date">XX.XX. - XX.XX.</p>
+                    </div>
+                    <div class="month-right">
+                        <p>XX / XX h</p>
+                        <span class="status ok">OK</span>
+                    </div>
+                </div>
+
+                <div class="month-row">
+                    <div>
+                        <p class="kw">KW XX</p>
+                        <p class="date">XX.XX. - XX.XX.</p>
+                    </div>
+                    <div class="month-right">
+                        <p>XX / XX h</p>
+                        <span class="status reduced">Reduziert</span>
+                    </div>
+                </div>
+
+                <div class="month-row">
+                    <div>
+                        <p class="kw">KW XX</p>
+                        <p class="date">XX.XX. - XX.XX.</p>
+                    </div>
+                    <div class="month-right">
+                        <p>XX / XX h</p>
+                        <span class="status running">Laufend</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Meine Kursen -->
+        <div class="meine_kursen_container">
+            <p class="titles">Meine Kursen (diese Woche)</p>
+
+            <table class="details-table">
+                <thead>
+                <tr>
+                    <th>Kurs</th>
+                    <th>Tage</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- end -->
+<div class="end">
+    <p>Fit & Aktiv Scheduling System</p>
+    <p>Version 1.0.0 | © 2026 Fit & Aktiv</p>
+</div>
+</body>
+
+</body>
+
+

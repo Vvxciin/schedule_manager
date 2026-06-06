@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verfügbarkeitverwaltung</title>
+    <link rel="stylesheet" href="Verfügbarkeitverwaltung.css">
+</head>
+<body style="background-color: #f3f3f3">
+
+
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-logo">
+        Fit & Aktive
+    </div>
+    <p class="navbar-text">Verfügbarkeitverwaltung</p>
+    <!-- Right -->
+    <div class="navbar-right">
+        <img src="images/notification.png" class="navbar-icons">
+        <img src="images/user.png" class="navbar-icons">
+    </div>
+</nav>
+
+
+<!-- Meine Verfugbarkeit -->
+<div class="meine_verfuegbarkeit_container">
+    <div>
+        <p class="titles" style="padding: 0px">Meine Verfügbarkeit-KW XX (XX.XX. - XX.XX.XXXX)</p>
+        <p class="gray_text">Teilzeit (Nachmittags)</p>
+    </div>
+
+    <p class="gray_text" style="margin-left: 35%;">Beschäftigungsart:</p>
+
+    <div class="week-buttons">
+        <button class="vorherig-neachste-button">← Vorherige Woche</button>
+        <button class="vorherig-neachste-button">Nächste Woche →</button>
+    </div>
+</div>
+
+
+<div class="content_container">
+
+    <!-- left side-wochenübersicht -->
+    <div class="wochen_container">
+        <p class="titles">Wochenübersicht</p>
+
+        <div class="legend">
+            <div><span class="box available"></span>Verfügbar</div>
+            <div><span class="box assigned"></span>Kurs zugewiesen</div>
+            <div><span class="box unavailable"></span>Nicht verfügbar</div>
+            <div><span class="box absent"></span>Abwesenheit</div>
+        </div>
+
+        <!-- Table -->
+        <table class="week-table">
+            <thead>
+            <tr>
+                <th>Zeit</th>
+                <th>Mo</th>
+                <th>Di</th>
+                <th>Mi</th>
+                <th>Do</th>
+                <th>Fr</th>
+                <th>Sa</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+                <td>08:00</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td>09:00</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td>10:00</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td>11:00</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td>12:00</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td>13:00</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td>14:00</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td>15:00</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td>16:00</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td>17:00</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td>18:00</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Right side -->
+    <div class="right_side">
+        <div class="anwesenheit_melden">
+            <p class="titles">Anwesenheit Melden</p>
+
+            <form class="absence-form">
+                <label>Grund</label>
+                <select>
+                    <option>Krankmeldung</option>
+                    <option>Urlaub</option>
+                    <option>Sonstiges</option>
+                </select>
+
+                <div class="date-row">
+                    <div>
+                        <label>Von</label>
+                        <input type="date" value="2026-05-29">
+                    </div>
+
+                    <div>
+                        <label>Bis</label>
+                        <input type="date" value="2026-05-29">
+                    </div>
+                </div>
+
+                <label>Anmerkung (optional)</label>
+                <textarea placeholder="Weitere Informationen..."></textarea>
+
+                <button type="button">Abwesenheit eintragen</button>
+            </form>
+        </div>
+
+        <div class="gemeldete_anwesenheit">
+            <p class="titles">Gemeldete Anwesenheit</p>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- end -->
+<div class="end">
+    <p>Fit & Aktiv Scheduling System</p>
+    <p>Version 1.0.0 | © 2026 Fit & Aktiv</p>
+</div>
+</body>

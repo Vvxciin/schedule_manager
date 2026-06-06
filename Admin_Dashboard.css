@@ -25,6 +25,7 @@
     text-align: center;
     font-size: 30px;
     margin: 0px;
+    font-family: sans-serif;
 }
 
 .navbar-icons{
@@ -66,6 +67,7 @@
 .info-text{
     font-size: 20px;
     margin: 6px 0;
+    font-family: sans-serif;
 }
 
 .info-icons{
@@ -110,6 +112,7 @@
 .table-text{
     font-size: 20px;
     margin: 6px 0;
+    font-family: sans-serif;
 }
 
 
@@ -158,6 +161,7 @@
 
     padding: 8px 15px;
     cursor: pointer;
+    font-family: sans-serif;
 }
 
 

@@ -18,6 +18,7 @@
     color: black;
     font-weight: bold;
     font-size: 30px;
+
 }
 
 .navbar-text{
@@ -25,6 +26,7 @@
     text-align: center;
     font-size: 30px;
     margin: 0px;
+    font-family: sans-serif;
 }
 
 .navbar-icons{
@@ -33,3 +35,158 @@
     object-fit: contain;
     margin-left: 20px;
 }
+
+
+
+/* Searhc Bar */
+.search-container{
+    margin-top: 15px;
+    padding: 15px 25px;
+
+    border: 1px solid black;
+    border-radius: 20px;
+    background-color: white;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    box-sizing: border-box;
+}
+
+.search-input{
+    flex: 1;
+    height: 35px;
+
+    border: 1px solid #aaa;
+    border-radius: 6px;
+
+    padding-left: 15px;
+    font-size: 15px;
+}
+
+.filter-select{
+    width: 140px;
+    height: 35px;
+
+    border: 1px solid #aaa;
+    border-radius: 4px;
+
+    font-size: 14px;
+}
+
+.filter-button{
+    width: 100px;
+    height: 35px;
+
+    border: none;
+    border-radius: 6px;
+
+    background-color: black;
+    color: white;
+
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* left side-verfugbare kursen */
+
+.content_container{
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.verfugbar_container{
+    flex: 7;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    height: 700px;
+}
+
+.verfugbar_title{
+    color: black;
+    text-align: left;
+    font-size: 25px;
+    font-weight: bold;
+    font-family: sans-serif;
+    padding-left: 30px;
+}
+
+
+/* right side */
+.right_side{
+    flex: 3;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+.right_side_title{
+    color: black;
+    text-align: left;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: sans-serif;
+    padding-left: 30px;
+
+}
+
+
+.meine_buchungen{
+    background-color: white;
+
+    border: 1px solid black;
+    border-radius: 20px;
+
+    height: 300px;
+
+    box-sizing: border-box;
+}
+
+.benachrichtigungen{
+    background-color: white;
+
+    border: 1px solid black;
+    border-radius: 20px;
+
+    height: 220px;
+
+    box-sizing: border-box;
+}
+
+
+
+/* end part */
+.end{
+    margin-top: 20px;
+    width: 100%;
+    height: 70px;
+
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: white;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 50px;
+    box-sizing: border-box;
+
+    position: relative;
+    color: gray;
+}
+
+.end p{
+    margin: 0;
+}
+
+.end p:last-child{
+    position: absolute;
+    left: 85%;
+    transform: translateX(-50%);
+}
+
