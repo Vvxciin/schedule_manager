@@ -107,6 +107,9 @@
 
     padding: 25px 45px;
     box-sizing: border-box;
+
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .table-text{
@@ -122,6 +125,9 @@
 
     border: 1px solid black;
     border-radius: 20px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .schedule-table{

@@ -26,23 +26,23 @@
         <img src="images/aktiv.png" class="info-icons">
         <div class="info-content">
             <p class="info-text" style="color: gray">Aktive Trainer</p>
-            <p class="info-text" style="font-weight: bold;"> 24</p>
-            <p class="info-text" style="color: gray">2 krank gemeldet</p>
+            <p class="info-text" style="font-weight: bold;"> XX</p>
+            <p class="info-text" style="color: gray">X krank gemeldet</p>
         </div>
     </div>
     <div class="info">
         <img src="images/costumer.png" class="info-icons">
         <div class="info-content">
             <p class="info-text" style="color: gray">Registrierte Kunden</p>
-            <p class="info-text" style="font-weight: bold;"> 1.247</p>
-            <p class="info-text" style="color: gray">+18 diese Woche</p>
+            <p class="info-text" style="font-weight: bold;"> X.XXX</p>
+            <p class="info-text" style="color: gray">+XX diese Woche</p>
         </div>
     </div>
     <div class="info">
         <img src="images/class.png" class="info-icons">
         <div class="info-content">
             <p class="info-text" style="color: gray">Heutige Kurse</p>
-            <p class="info-text" style="font-weight: bold;"> 12</p>
+            <p class="info-text" style="font-weight: bold;"> XX</p>
             <p class="info-text" style="color: gray">Kurse</p>
         </div>
     </div>
@@ -50,7 +50,7 @@
         <img src="images/costumer.png" class="info-icons">
         <div class="info-content">
             <p class="info-text" style="color: gray">Heutige Stansorte</p>
-            <p class="info-text" style="font-weight: bold;"> 3</p>
+            <p class="info-text" style="font-weight: bold;"> X</p>
             <p class="info-text" style="color: gray">Alle Aktiv</p>
         </div>
     </div>
@@ -75,6 +75,7 @@
                     <th>Aktion</th>
                 </tr>
                 </thead>
+                <tbody id="trainer-body"></tbody>
             </table>
         </div>
         <button class="alle-anzeige-button">Alle anzeigen</button>
@@ -110,6 +111,7 @@
                     <th>Status</th>
                 </tr>
                 </thead>
+                <tbody id="course-body"></tbody>
             </table>
         </div>
     </div>
@@ -123,5 +125,7 @@
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="Admin_Dashboard.js"></script>
 </body>
 </html>

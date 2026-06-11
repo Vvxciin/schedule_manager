@@ -231,14 +231,17 @@
     height: 600px;
 
     box-sizing: border-box;
+
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .details-table{
     width: calc(100% - 60px);
     margin: 0 30px;
     border-collapse: collapse;
-    font-family: sans-serif;
     color: gray;
+
 }
 
 .details-table th,
@@ -276,7 +279,8 @@
 }
 .month-list{
     padding: 0 30px;
-    font-family: sans-serif;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .month-row{

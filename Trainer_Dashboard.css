@@ -111,6 +111,9 @@
 
     border: 1px solid black;
     border-radius: 20px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .schedule-table{
@@ -125,7 +128,7 @@
     padding-bottom: 10px;
     padding-left: 40px;
     text-align: left;
-    font-family: sans-serif;
+
 }
 
 .table-button{
