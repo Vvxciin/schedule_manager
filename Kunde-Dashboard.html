@@ -49,17 +49,20 @@
 
     <!-- left side -->
     <div class="verfugbar_container">
-        <p class="verfugbar_title">Verfügbare Kurse - Heute, XX.XX.XXXX</p>
+         <p class="verfugbar_title">Verfügbare Kurse</p>
+         <div id="courses-list"></div>
     </div>
 
     <!-- Right side -->
     <div class="right_side">
         <div class="meine_buchungen">
-            <p class="right_side_title">Meine Buchungen</p>
+             <p class="right_side_title">Meine Buchungen</p>
+            <div id="bookings-list"></div>
         </div>
 
         <div class="benachrichtigungen">
-            <p class="right_side_title">Benachrichtungen</p>
+             <p class="right_side_title">Benachrichtigungen</p>
+             <div id="notifications-list"></div>
         </div>
     </div>
 </div>
@@ -72,6 +75,9 @@
     <p>Fit & Aktiv Scheduling System</p>
     <p>Version 1.0.0 | © 2026 Fit & Aktiv</p>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="Kunde-Dashboard.js"></script>
 
 </body>
 </html>

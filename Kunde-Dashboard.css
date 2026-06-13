@@ -190,3 +190,32 @@
     transform: translateX(-50%);
 }
 
+
+.course-card,
+.booking-card {
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 15px 30px;
+    font-family: sans-serif;
+    background-color: #fafafa;
+}
+
+.course-card h3 {
+    margin-top: 0;
+}
+
+.course-card button,
+.booking-card button {
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.course-card button:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+}
