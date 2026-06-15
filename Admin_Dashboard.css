@@ -210,3 +210,18 @@
     transform: translateX(-50%);
 }
 
+
+
+/* access problem to Arbeitsstundeübersicht */
+.navbar-menu{
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.navbar-menu a{
+    text-decoration: none;
+    color: black;
+    font-size: 20px;
+    font-family: sans-serif;
+}
