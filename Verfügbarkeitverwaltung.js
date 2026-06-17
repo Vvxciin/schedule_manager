@@ -24,10 +24,19 @@ async function saveAbsence(e){
     const note =
         document.querySelector("textarea").value;
 
-    /*const trainerId =
-        "PUT_TRAINER_ID_HERE";*/
-    const trainerId =
-        "12762f03-2fbe-4715-a21f-5e6db7c80c19";
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    if (!currentUser) {
+        alert("Bitte zuerst einloggen.");
+        window.location.href = "login.html";
+    }
+
+    if (currentUser.role !== "trainer") {
+        alert("Diese Seite ist nur für Trainer.");
+        window.location.href = "login.html";
+    }
+
+const trainerId = currentUser.id;
 
 
     const { error } = await supabaseClient

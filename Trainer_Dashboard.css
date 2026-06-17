@@ -187,3 +187,37 @@
     font-size: 20px;
     font-family: sans-serif;
 }
+
+.navbar-right {
+    position: relative;
+}
+
+.profile-box {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+
+    width: 220px;
+    background: white;
+    border: 1px solid black;
+    border-radius: 12px;
+    padding: 15px;
+
+    z-index: 999;
+    font-family: sans-serif;
+}
+
+.profile-box p {
+    margin: 5px 0;
+}
+
+.profile-box button {
+    margin-top: 10px;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid black;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+}

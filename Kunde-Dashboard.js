@@ -3,9 +3,42 @@ const SUPABASE_KEY = "sb_publishable_5MNAMD_t3GdttXnONyy0-A_qqW0GA9s";
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Temporary fixed customer for testing.
-// Later you can replace this with login/current user.
-const CURRENT_CUSTOMER_ID = "18e6f568-2c9c-4564-87d6-b8da6d2f1198";
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+if (!currentUser) {
+    alert("Bitte zuerst einloggen.");
+    window.location.href = "login.html";
+}
+
+if (currentUser.role !== "customer") {
+    alert("Diese Seite ist nur für Kunden.");
+    window.location.href = "login.html";
+}
+
+const CURRENT_CUSTOMER_ID = currentUser.id;
+
+function setupProfileBox() {
+    const profileBtn = document.getElementById("profileBtn");
+    const profileBox = document.getElementById("profileBox");
+    const profileName = document.getElementById("profileName");
+    const profileRole = document.getElementById("profileRole");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    profileName.innerText = `Name: ${currentUser.name}`;
+    profileRole.innerText = `Rolle: ${currentUser.role}`;
+
+    profileBtn.onclick = () => {
+        profileBox.style.display =
+            profileBox.style.display === "block" ? "none" : "block";
+    };
+
+    logoutBtn.onclick = () => {
+        localStorage.removeItem("currentUser");
+        window.location.href = "login.html";
+    };
+}
+
+setupProfileBox();
 
 async function loadCourses() {
     const { data, error } = await supabaseClient
