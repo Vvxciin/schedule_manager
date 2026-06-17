@@ -56,4 +56,50 @@ const trainerId = currentUser.id;
     }
 
     alert("Gespeichert");
+    loadAbsences();
 }
+
+
+
+
+async function loadAbsences() {
+
+    const trainerId =
+        "12762f03-2fbe-4715-a21f-5e6db7c80c19";
+
+    const { data, error } = await supabaseClient
+        .from("absences")
+        .select("*")
+        .eq("trainer_id", trainerId)
+        .order("start_date", { ascending: false });
+
+    if(error){
+        console.log(error);
+        return;
+    }
+
+    const container =
+        document.getElementById("absence-list");
+
+    container.innerHTML = "";
+
+    data.forEach(absence => {
+
+        container.innerHTML += `
+            <div style="
+                border:1px solid #ccc;
+                padding:10px;
+                margin-bottom:10px;
+                border-radius:8px;
+            ">
+                <b>${absence.status}</b><br>
+                ${absence.start_date}
+                bis
+                ${absence.end_date}<br>
+                ${absence.reason || ""}
+            </div>
+        `;
+    });
+}
+
+loadAbsences();
