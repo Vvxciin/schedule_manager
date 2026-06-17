@@ -103,3 +103,86 @@ async function loadAbsences() {
 }
 
 loadAbsences();
+
+
+document
+.getElementById("availability-form")
+.addEventListener("submit", saveAvailability);
+
+
+async function saveAvailability(e){
+
+    e.preventDefault();
+
+    const trainerId =
+    "12762f03-2fbe-4715-a21f-5e6db7c80c19";
+
+    const day =
+    document.getElementById("availability-day").value;
+
+    const start =
+    document.getElementById("availability-start").value;
+
+    const end =
+    document.getElementById("availability-end").value;
+
+    const { error } = await supabaseClient
+        .from("trainer_availability")
+        .insert({
+            trainer_id: trainerId,
+            day_of_week: day,
+            start_time: start,
+            end_time: end
+        });
+
+    if(error){
+        console.log(error);
+        alert(error.message);
+        return;
+    }
+
+    alert("Verfügbarkeit gespeichert");
+
+    loadAvailability();
+}
+
+async function loadAvailability(){
+
+    const trainerId =
+    "12762f03-2fbe-4715-a21f-5e6db7c80c19";
+
+    const { data, error } = await supabaseClient
+        .from("trainer_availability")
+        .select("*")
+        .eq("trainer_id", trainerId);
+
+    if(error){
+        console.log(error);
+        return;
+    }
+
+    const container =
+    document.getElementById("availability-list");
+
+    container.innerHTML = "";
+
+    data.forEach(item => {
+
+        container.innerHTML += `
+            <div style="
+                border:1px solid #ccc;
+                padding:8px;
+                margin:5px;
+            ">
+                Tag ${item.day_of_week}
+                :
+                ${item.start_time}
+                -
+                ${item.end_time}
+            </div>
+        `;
+    });
+}
+
+loadAvailability();
+
