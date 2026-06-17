@@ -7,6 +7,35 @@ console.log("Supabase connected!");
 
 
 let editingTrainerId = null;
+let editingCourseId = null;
+
+
+
+
+function openCourseEditModal(course) {
+
+    editingCourseId = course.id;
+
+    document.getElementById("courseTitle").value =
+        course.title;
+
+    document.getElementById("courseTrainer").value =
+        course.trainer_id;
+
+    document.getElementById("courseRoom").value =
+        course.room_id;
+
+    const startDate =
+        new Date(course.start_time);
+
+    document.getElementById("courseDate").value =
+        startDate.toISOString().split("T")[0];
+
+    document.getElementById("courseStartTime").value =
+        startDate.toTimeString().slice(0,5);
+
+    openModal("courseModal");
+}
 
 function openModal(id) {
     document.getElementById(id).style.display = "block";
@@ -131,6 +160,8 @@ async function loadCourses() {
         .select(`
             id,
             title,
+            trainer_id,
+            room_id,
             start_time,
             end_time,
             max_participants,
@@ -169,6 +200,7 @@ async function loadCourses() {
                 <td>${course.rooms?.branches?.name || "-"}</td>
                 <td>${course.current_participants}/${course.max_participants}</td>
                 <td>${course.status}</td>
+                <td><button onclick='openCourseEditModal(${JSON.stringify(course)})'>Bearbeiten</button></td>
             </tr>
         `;
     });
@@ -351,7 +383,26 @@ async function saveCourse() {
         return;
     }
 
-    const { error } = await supabaseClient
+    let error;
+
+if (editingCourseId) {
+
+    const result = await supabaseClient
+        .from("courses")
+        .update({
+            title: title,
+            trainer_id: trainerId,
+            room_id: roomId,
+            start_time: startTime,
+            end_time: endTime
+        })
+        .eq("id", editingCourseId);
+
+    error = result.error;
+
+} else {
+
+    const result = await supabaseClient
         .from("courses")
         .insert({
             title: title,
@@ -363,6 +414,9 @@ async function saveCourse() {
             current_participants: 0,
             status: "scheduled"
         });
+
+    error = result.error;
+}
 
     if (error) {
         console.log("Save course error:", error);
