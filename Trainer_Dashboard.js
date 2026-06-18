@@ -29,9 +29,7 @@ function setupProfileBox() {
 
     profileBtn.onclick = () => {
         profileBox.style.display =
-            profileBox.style.display === "block"
-                ? "none"
-                : "block";
+            profileBox.style.display === "block" ? "none" : "block";
     };
 
     logoutBtn.onclick = () => {
@@ -67,7 +65,7 @@ async function loadSchedule() {
     const scheduleBody = document.getElementById("schedule-body");
     scheduleBody.innerHTML = "";
 
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
         scheduleBody.innerHTML = `
             <tr>
                 <td colspan="4">Keine Kurse für diesen Trainer.</td>
@@ -102,3 +100,68 @@ async function loadSchedule() {
 }
 
 loadSchedule();
+
+async function loadDashboardInfo() {
+    // trainer info
+    const { data: trainer } = await supabaseClient
+        .from("trainers")
+        .select("working_hours")
+        .eq("id", CURRENT_TRAINER_ID)
+        .single();
+
+    // all courses for this trainer
+    const { data: courses, error: courseError } = await supabaseClient
+        .from("courses")
+        .select(`
+            start_time,
+            end_time,
+            rooms (
+                branches (
+                    name
+                )
+            )
+        `)
+        .eq("trainer_id", CURRENT_TRAINER_ID);
+
+    if (courseError) {
+        console.log("Course info error:", courseError);
+        return;
+    }
+
+    document.getElementById("todayCourses").innerText = courses.length;
+
+    const locations = new Set();
+
+    let workedHours = 0;
+
+    courses.forEach(course => {
+        const branchName = course.rooms?.branches?.name;
+        if (branchName) {
+            locations.add(branchName);
+        }
+
+        const start = new Date(course.start_time);
+        const end = new Date(course.end_time);
+
+        if (!isNaN(start) && !isNaN(end)) {
+            workedHours += (end - start) / (1000 * 60 * 60);
+        }
+    });
+
+    document.getElementById("todayLocations").innerText = locations.size;
+
+    const maxHours = trainer?.working_hours || "XX";
+
+    document.getElementById("weeklyHours").innerText =
+        `${workedHours}/${maxHours}`;
+
+    const { count } = await supabaseClient
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", CURRENT_TRAINER_ID)
+        .eq("is_read", false);
+
+    document.getElementById("unreadNotifications").innerText = count || 0;
+}
+
+loadDashboardInfo();
