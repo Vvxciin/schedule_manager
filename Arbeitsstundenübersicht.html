@@ -33,53 +33,57 @@
 
 
 <!-- info -->
+<!-- info -->
 <div class="info-container">
     <div class="info">
         <div class="info-content">
             <p class="info-text" style="color: gray">Diese Woche</p>
-            <p class="hours">XX <span>/ XX h</span></p>
+            <p class="hours" id="weekHours">0 <span>/ 0 h</span></p>
 
             <div class="progress-bg">
-                <div class="progress-yellow"></div>
+                <div class="progress-yellow" id="weekProgress"></div>
             </div>
 
-            <p class="info-text" style="color: darkgray; font-size: 17px">X Stunden verbleibend</p>
+            <p class="info-text" id="weekRemaining" style="color: darkgray; font-size: 17px">0 Stunden verbleibend</p>
         </div>
     </div>
+
     <div class="info">
         <div class="info-content">
-            <p class="info-text" style="color: gray">Diese Monat</p>
-            <p class="hours">XX <span>/ XX h</span></p>
+            <p class="info-text" style="color: gray">Dieser Monat</p>
+            <p class="hours" id="monthHours">0 <span>h</span></p>
 
             <div class="progress-bg">
-                <div class="progress-green"></div>
+                <div class="progress-green" id="monthProgress"></div>
             </div>
 
-            <p class="info-text" style="color: darkgray; font-size: 17px">X Stunden verbleibend</p>
+            <p class="info-text" id="monthInfo" style="color: darkgray; font-size: 17px">Monatsübersicht</p>
         </div>
     </div>
+
     <div class="info">
         <div class="info-content">
-            <p class="info-text" style="color: gray">Fahrtzeit (diese Woche)</p>
-            <p class="hours">X <span>h</span></p>
+            <p class="info-text" style="color: gray">Fahrtzeit diese Woche</p>
+            <p class="hours" id="travelHours">0 <span>h</span></p>
 
             <div class="progress-bg">
-                <div class="progress-gray"></div>
+                <div class="progress-gray" id="travelProgress"></div>
             </div>
 
-            <p class="info-text" style="color: darkgray; font-size: 17px">Zwichen Studios angerechnet</p>
+            <p class="info-text" style="color: darkgray; font-size: 17px">Zwischen Studios angerechnet</p>
         </div>
     </div>
+
     <div class="info">
         <div class="info-content">
             <p class="info-text" style="color: gray">Heute gearbeitet</p>
-            <p class="hours">X <span>h</span></p>
+            <p class="hours" id="todayHours">0 <span>h</span></p>
 
             <div class="progress-bg">
-                <div class="progress-green"></div>
+                <div class="progress-green" id="todayProgress"></div>
             </div>
 
-            <p class="info-text" style="color: darkgray; font-size: 17px">XX:XX - XX:XX geplant</p>
+            <p class="info-text" id="todayInfo" style="color: darkgray; font-size: 17px">Keine Kurse heute</p>
         </div>
     </div>
 </div>
@@ -91,7 +95,13 @@
         <!-- -Arbeitsstunden -->
         <div class="stunden_container">
             <div class="stunden-header">
-                <p class="titles">Arbeitsstunden - MONAT XXXX</p>
+                <div>
+    <p class="titles" id="monthTitle">Arbeitsstunden</p>
+
+    <select id="trainerSelect" style="margin-left: 30px; height: 35px; border-radius: 6px;">
+        <option value="">Trainer auswählen...</option>
+    </select>
+</div>
 
                 <div class="month-buttons">
                     <button>← April</button>
@@ -99,44 +109,20 @@
                 </div>
             </div>
 
-            <div class="bar-chart">
-                <div class="bar-item">
-                    <p>XXh</p>
-                    <div class="bar blue" style="height: 120px;"></div>
-                    <span>KW XX</span>
-                </div>
 
-                <div class="bar-item">
-                    <p>XXh</p>
-                    <div class="bar blue" style="height: 140px;"></div>
-                    <span>KW XX</span>
-                </div>
+            <div class="bar-chart" id="barChart"></div>
 
-                <div class="bar-item">
-                    <p>XXh</p>
-                    <div class="bar yellow" style="height: 100px;"></div>
-                    <span>KW XX</span>
-                </div>
 
-                <div class="bar-item">
-                    <p>XXh</p>
-                    <div class="bar lightblue" style="height: 120px;"></div>
-                    <span>KW XX</span>
-                </div>
 
-                <div class="bar-item">
-                    <p>XXh</p>
-                    <div class="bar empty" style="height: 15px;"></div>
-                    <span>KW XX</span>
-                </div>
-            </div>
 
-            <p class="chart-note">Maximale Wochenstunden: XX h (Teilzeit oder Vollzeit?????)</p>
+
+
+            <p class="chart-note" id="chartNote">Bitte Trainer auswählen.</p>
         </div>
 
         <!-- Wochendetails -->
         <div class="wochen_container">
-            <p class="titles">Wochendetails - KW XX</p>
+            <p class="titles" id="weekDetailsTitle">Wochendetails</p>
 
             <table class="details-table">
                 <thead>
@@ -164,42 +150,7 @@
         <div class="monat_container">
             <p class="titles">Monatübersicht</p>
 
-            <div class="month-list">
-
-                <div class="month-row">
-                    <div>
-                        <p class="kw">KW XX</p>
-                        <p class="date">XX.XX. - XX.XX.</p>
-                    </div>
-                    <div class="month-right">
-                        <p>XX / XX h</p>
-                        <span class="status ok">OK</span>
-                    </div>
-                </div>
-
-                <div class="month-row">
-                    <div>
-                        <p class="kw">KW XX</p>
-                        <p class="date">XX.XX. - XX.XX.</p>
-                    </div>
-                    <div class="month-right">
-                        <p>XX / XX h</p>
-                        <span class="status reduced">Reduziert</span>
-                    </div>
-                </div>
-
-                <div class="month-row">
-                    <div>
-                        <p class="kw">KW XX</p>
-                        <p class="date">XX.XX. - XX.XX.</p>
-                    </div>
-                    <div class="month-right">
-                        <p>XX / XX h</p>
-                        <span class="status running">Laufend</span>
-                    </div>
-                </div>
-
-            </div>
+            <div class="month-list" id="monthList"></div>
 
         </div>
 
@@ -208,13 +159,14 @@
             <p class="titles">Meine Kursen (diese Woche)</p>
 
             <table class="details-table">
-                <thead>
-                <tr>
-                    <th>Kurs</th>
-                    <th>Tage</th>
-                </tr>
-                </thead>
-            </table>
+    <thead>
+    <tr>
+        <th>Kurs</th>
+        <th>Tag</th>
+    </tr>
+    </thead>
+    <tbody id="myCoursesBody"></tbody>
+</table>
         </div>
     </div>
 
