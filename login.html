@@ -4,16 +4,24 @@
     <title>Login</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="login.css">
 </head>
 
 <body>
+    <h2 class="Title-Text">Login</h2>
 
-    <h2>Login</h2>
+    <div class="login-row">
+        <p class="Email-Pass-Text">Email:</p>
+        <input class="placeholders" id="email" placeholder="Email">
+    </div>
 
-    <input id="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Password" />
+    <div class="login-row">
+        <p class="Email-Pass-Text">Password:</p>
+        <input class="placeholders" id="password" type="password" placeholder="Password">
+    </div>
 
-    <button onclick="login()">Login</button>
+    <button class="login-button" onclick="login()">Login</button>
+
 
     <script src="login.js"></script>
 </body>
