@@ -468,7 +468,7 @@ function timesOverlap(startA, endA, startB, endB) {
     return startA < endB && endA > startB;
 }
 
-async function hasTrainerConflict(trainerId, startTime, endTime) {
+async function hasTrainerConflict(trainerId, startTime, endTime, ignoredCourseId = null) {
     const { data, error } = await supabaseClient
         .from("courses")
         .select("id, start_time, end_time")
@@ -484,6 +484,10 @@ async function hasTrainerConflict(trainerId, startTime, endTime) {
     const newEnd = new Date(endTime);
 
     return data.some(course => {
+        if (ignoredCourseId && course.id === ignoredCourseId) {
+            return false;
+        }
+
         const existingStart = new Date(course.start_time);
         const existingEnd = new Date(course.end_time);
 
@@ -491,7 +495,7 @@ async function hasTrainerConflict(trainerId, startTime, endTime) {
     });
 }
 
-async function hasRoomConflict(roomId, startTime, endTime) {
+async function hasRoomConflict(roomId, startTime, endTime, ignoredCourseId = null) {
     const { data, error } = await supabaseClient
         .from("courses")
         .select("id, start_time, end_time")
@@ -507,6 +511,10 @@ async function hasRoomConflict(roomId, startTime, endTime) {
     const newEnd = new Date(endTime);
 
     return data.some(course => {
+        if (ignoredCourseId && course.id === ignoredCourseId) {
+            return false;
+        }
+
         const existingStart = new Date(course.start_time);
         const existingEnd = new Date(course.end_time);
 
@@ -973,14 +981,25 @@ async function saveCourse() {
     const endTime =
         `${courseDate}T${String(endDate.getHours()).padStart(2, "0")}:${String(endDate.getMinutes()).padStart(2, "0")}`;
 
-    const trainerConflict = await hasTrainerConflict(trainerId, startTime, endTime);
+    const trainerConflict = await hasTrainerConflict(
+    trainerId,
+    startTime,
+    endTime,
+    editingCourseId
+);
 
     if (trainerConflict) {
         alert("Dieser Trainer hat zu dieser Zeit schon einen Kurs.");
         return;
     }
 
-    const roomConflict = await hasRoomConflict(roomId, startTime, endTime);
+    const roomConflict = await hasRoomConflict(
+        roomId,
+        startTime,
+        endTime,
+        editingCourseId
+    );
+
 
     if (roomConflict) {
         alert("Dieser Raum ist zu dieser Zeit schon belegt.");
