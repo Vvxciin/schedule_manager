@@ -160,13 +160,29 @@
 
 <div class="modal" id="customerModal">
     <div class="modal-content">
-        <h2>Kunde hinzufügen</h2>
+        <h2>Kunde hinzufügen / löschen</h2>
 
         <input id="customerName" placeholder="Name">
         <input id="customerEmail" placeholder="Email">
         <input id="customerPhone" placeholder="Telefonnummer">
 
         <button id="saveCustomerBtn">Speichern</button>
+
+        <h3>Bestehende Kunden</h3>
+
+        <div class="small-table-box">
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody id="customer-body"></tbody>
+            </table>
+        </div>
+
         <button class="closeModalBtn" data-modal="customerModal">Schließen</button>
     </div>
 </div>

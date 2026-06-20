@@ -294,3 +294,28 @@
     font-size: 12px;
     margin-top: 4px;
 }
+
+.delete-btn {
+    background-color: #ffdddd;
+    border: 1px solid #cc0000;
+    color: #990000;
+    border-radius: 5px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 4px 8px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.small-table-box {
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid black;
+    border-radius: 10px;
+}
