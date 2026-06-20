@@ -73,7 +73,10 @@ function openTrainerEditModal(trainer) {
 }
 
 document.getElementById("openTrainerModal").onclick = openTrainerCreateModal;
-document.getElementById("openCustomerModal").onclick = () => openModal("customerModal");
+document.getElementById("openCustomerModal").onclick = () => {
+    openModal("customerModal");
+    loadCustomers();
+};
 document.getElementById("openCourseModal").onclick = () => openModal("courseModal");
 
 document.querySelectorAll(".closeModalBtn").forEach(button => {
@@ -107,8 +110,11 @@ async function loadTrainers() {
                 <td>${trainer.working_hours || "-"} h</td>
                 <td>aktiv</td>
                 <td>
-                    <button onclick='openTrainerEditModal(${safeTrainer})'>
-                        Bearbeiten
+                    <button class="edit-btn" onclick='openTrainerEditModal(${safeTrainer})'>
+                    Bearbeiten
+                    </button>
+                    <button class="delete-btn" onclick="deleteTrainer('${trainer.id}', '${trainer.name}')">
+                    Löschen
                     </button>
                 </td>
             </tr>
@@ -200,7 +206,14 @@ async function loadCourses() {
                 <td>${course.rooms?.branches?.name || "-"}</td>
                 <td>${course.current_participants}/${course.max_participants}</td>
                 <td>${course.status}</td>
-                <td><button onclick='openCourseEditModal(${JSON.stringify(course)})'>Bearbeiten</button></td>
+                <td>
+                    <button class="edit-btn" onclick='openCourseEditModal(${JSON.stringify(course)})'>
+                    Bearbeiten
+                    </button>
+                    <button class="delete-btn" onclick="deleteCourse('${course.id}', '${course.title}')">
+                    Löschen
+                    </button>
+                </td>
             </tr>
         `;
     });
@@ -256,6 +269,112 @@ async function hasRoomConflict(roomId, startTime, endTime) {
     });
 }
 
+
+async function deleteTrainer(trainerId, trainerName) {
+    const confirmed = confirm(`Trainer ${trainerName} wirklich löschen?`);
+
+    if (!confirmed) {
+        return;
+    }
+
+    const { data: assignedCourses, error: courseCheckError } = await supabaseClient
+        .from("courses")
+        .select("id")
+        .eq("trainer_id", trainerId)
+        .neq("status", "cancelled");
+
+    if (courseCheckError) {
+        console.log("Trainer delete check error:", courseCheckError);
+        alert("Trainer konnte nicht geprüft werden.");
+        return;
+    }
+
+    if (assignedCourses.length > 0) {
+        alert("Dieser Trainer ist noch Kursen zugewiesen. Bitte zuerst diese Kurse löschen oder bearbeiten.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("trainers")
+        .delete()
+        .eq("id", trainerId);
+
+    if (error) {
+        console.log("Delete trainer error:", error);
+        alert("Trainer konnte nicht gelöscht werden.");
+        return;
+    }
+
+    alert("Trainer gelöscht!");
+    loadTrainers();
+}
+
+async function deleteCourse(courseId, courseTitle) {
+    const confirmed = confirm(`Kurs ${courseTitle} wirklich löschen? Alle Buchungen für diesen Kurs werden auch gelöscht.`);
+
+    if (!confirmed) {
+        return;
+    }
+
+    const { error: bookingDeleteError } = await supabaseClient
+        .from("bookings")
+        .delete()
+        .eq("course_id", courseId);
+
+    if (bookingDeleteError) {
+        console.log("Delete course bookings error:", bookingDeleteError);
+        alert("Buchungen für diesen Kurs konnten nicht gelöscht werden.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("courses")
+        .delete()
+        .eq("id", courseId);
+
+    if (error) {
+        console.log("Delete course error:", error);
+        alert("Kurs konnte nicht gelöscht werden.");
+        return;
+    }
+
+    alert("Kurs gelöscht!");
+    loadCourses();
+}
+
+async function deleteCustomer(customerId, customerName) {
+    const confirmed = confirm(`Kunde ${customerName} wirklich löschen? Alle Buchungen von diesem Kunden werden auch gelöscht.`);
+
+    if (!confirmed) {
+        return;
+    }
+
+    const { error: bookingDeleteError } = await supabaseClient
+        .from("bookings")
+        .delete()
+        .eq("customer_id", customerId);
+
+    if (bookingDeleteError) {
+        console.log("Delete customer bookings error:", bookingDeleteError);
+        alert("Buchungen von diesem Kunden konnten nicht gelöscht werden.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("customers")
+        .delete()
+        .eq("id", customerId);
+
+    if (error) {
+        console.log("Delete customer error:", error);
+        alert("Kunde konnte nicht gelöscht werden.");
+        return;
+    }
+
+    alert("Kunde gelöscht!");
+    loadCustomers();
+}
+
 async function saveTrainer() {
     const name = document.getElementById("trainerName").value.trim();
     const email = document.getElementById("trainerEmail").value.trim();
@@ -303,6 +422,35 @@ async function saveTrainer() {
     loadTrainers();
 }
 
+async function loadCustomers() {
+    const { data, error } = await supabaseClient
+        .from("customers")
+        .select("id, name, email")
+        .order("name", { ascending: true });
+
+    if (error) {
+        console.log("Load customers error:", error);
+        return;
+    }
+
+    const customerBody = document.getElementById("customer-body");
+    customerBody.innerHTML = "";
+
+    data.forEach(customer => {
+        customerBody.innerHTML += `
+            <tr>
+                <td>${customer.name || "-"}</td>
+                <td>${customer.email || "-"}</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteCustomer('${customer.id}', '${customer.name}')">
+                        Löschen
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
 async function saveCustomer() {
     const name = document.getElementById("customerName").value.trim();
     const email = document.getElementById("customerEmail").value.trim();
@@ -329,7 +477,10 @@ async function saveCustomer() {
     }
 
     alert("Kunde gespeichert!");
-    closeModal("customerModal");
+    document.getElementById("customerName").value = "";
+    document.getElementById("customerEmail").value = "";
+    document.getElementById("customerPhone").value = "";
+    loadCustomers();
 }
 
 async function saveCourse() {
