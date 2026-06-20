@@ -6,6 +6,77 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 console.log("Supabase connected!");
 
 
+async function createNotification(message, type = "info", userId = null) {
+    const notificationData = {
+        message: message,
+        type: type,
+        is_read: false
+    };
+
+    if (userId) {
+        notificationData.user_id = userId;
+    }
+
+    const { error } = await supabaseClient
+        .from("notifications")
+        .insert(notificationData);
+
+    if (error) {
+        console.log("Create notification error:", error);
+    }
+}
+
+async function loadNotifications() {
+    const { data, error } = await supabaseClient
+        .from("notifications")
+        .select("message, type, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+    if (error) {
+        console.log("Notification Error:", error);
+        return;
+    }
+
+    const notificationBody = document.getElementById("notification-body");
+
+    if (!notificationBody) {
+        console.log("notification-body not found");
+        return;
+    }
+
+    notificationBody.innerHTML = "";
+
+    if (!data || data.length === 0) {
+        notificationBody.innerHTML = `
+            <div class="notification-item">
+                Noch keine Benachrichtigungen.
+            </div>
+        `;
+        return;
+    }
+
+    data.forEach(notification => {
+        const date = new Date(notification.created_at).toLocaleString("de-DE", {
+            day: "2-digit",
+            month: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        notificationBody.innerHTML += `
+            <div class="notification-item">
+                <div>
+                    <span class="notification-type">${notification.type || "Info"}:</span>
+                    ${notification.message}
+                </div>
+                <div class="notification-date">${date}</div>
+            </div>
+        `;
+    });
+}
+
+
 let editingTrainerId = null;
 let editingCourseId = null;
 
@@ -305,9 +376,11 @@ async function deleteTrainer(trainerId, trainerName) {
         return;
     }
 
+    await createNotification(`Trainer ${trainerName} wurde gelöscht.`, "Trainer");
     alert("Trainer gelöscht!");
     loadTrainers();
-}
+    loadNotifications();
+    }
 
 async function deleteCourse(courseId, courseTitle) {
     const confirmed = confirm(`Kurs ${courseTitle} wirklich löschen? Alle Buchungen für diesen Kurs werden auch gelöscht.`);
@@ -338,9 +411,11 @@ async function deleteCourse(courseId, courseTitle) {
         return;
     }
 
+    await createNotification(`Kurs ${courseTitle} wurde gelöscht.`, "Kurs");
     alert("Kurs gelöscht!");
     loadCourses();
-}
+    loadNotifications();
+    }
 
 async function deleteCustomer(customerId, customerName) {
     const confirmed = confirm(`Kunde ${customerName} wirklich löschen? Alle Buchungen von diesem Kunden werden auch gelöscht.`);
@@ -371,8 +446,10 @@ async function deleteCustomer(customerId, customerName) {
         return;
     }
 
+    await createNotification(`Kunde ${customerName} wurde gelöscht.`, "Kunde");
     alert("Kunde gelöscht!");
     loadCustomers();
+    loadNotifications();
 }
 
 async function saveTrainer() {
@@ -415,11 +492,19 @@ async function saveTrainer() {
         return;
     }
 
-    alert(editingTrainerId ? "Trainer aktualisiert!" : "Trainer gespeichert!");
+    await createNotification(
+    editingTrainerId
+        ? `Trainer ${name} wurde aktualisiert.`
+        : `Trainer ${name} wurde hinzugefügt.`,
+    "Trainer"
+);
 
-    closeModal("trainerModal");
-    clearTrainerForm();
-    loadTrainers();
+alert(editingTrainerId ? "Trainer aktualisiert!" : "Trainer gespeichert!");
+
+closeModal("trainerModal");
+clearTrainerForm();
+loadTrainers();
+loadNotifications();
 }
 
 async function loadCustomers() {
@@ -476,11 +561,14 @@ async function saveCustomer() {
         return;
     }
 
+    await createNotification(`Kunde ${name} wurde hinzugefügt.`, "Kunde");
+
     alert("Kunde gespeichert!");
     document.getElementById("customerName").value = "";
     document.getElementById("customerEmail").value = "";
     document.getElementById("customerPhone").value = "";
     loadCustomers();
+    loadNotifications();
 }
 
 async function saveCourse() {
@@ -581,15 +669,27 @@ if (editingCourseId) {
         return;
     }
 
+    await createNotification(
+    editingCourseId
+        ? `Kurs ${title} wurde aktualisiert.`
+        : `Kurs ${title} wurde erstellt.`,
+    "Kurs"
+);
+
     alert("Kurs gespeichert!");
     closeModal("courseModal");
+    editingCourseId = null;
     loadCourses();
+    loadNotifications();
 }
 
 document.getElementById("saveTrainerBtn").onclick = saveTrainer;
 document.getElementById("saveCustomerBtn").onclick = saveCustomer;
 document.getElementById("saveCourseBtn").onclick = saveCourse;
 
+document.getElementById("refreshNotificationsBtn").onclick = loadNotifications;
+
 loadTrainers();
 loadRooms();
 loadCourses();
+loadNotifications();

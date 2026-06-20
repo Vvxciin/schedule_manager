@@ -40,6 +40,70 @@ function setupProfileBox() {
 
 setupProfileBox();
 
+
+async function createCustomerNotification(message, type = "Buchung") {
+    const { error } = await supabaseClient
+        .from("notifications")
+        .insert({
+            user_id: CURRENT_CUSTOMER_ID,
+            message: message,
+            type: type,
+            is_read: false
+        });
+
+    if (error) {
+        console.log("Create customer notification error:", error);
+    }
+}
+
+async function loadCustomerNotifications() {
+    const { data, error } = await supabaseClient
+        .from("notifications")
+        .select("id, message, type, created_at")
+        .eq("user_id", CURRENT_CUSTOMER_ID)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+    if (error) {
+        console.log("Customer notification error:", error);
+        return;
+    }
+
+    const notificationsList = document.getElementById("notifications-list");
+
+    if (!notificationsList) {
+        return;
+    }
+
+    notificationsList.innerHTML = "";
+
+    if (!data || data.length === 0) {
+        notificationsList.innerHTML = `
+            <div class="booking-card">
+                Keine Benachrichtigungen.
+            </div>
+        `;
+        return;
+    }
+
+    data.forEach(notification => {
+        const date = new Date(notification.created_at).toLocaleString("de-DE", {
+            day: "2-digit",
+            month: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        notificationsList.innerHTML += `
+            <div class="booking-card">
+                <p><b>${notification.type || "Info"}</b></p>
+                <p>${notification.message}</p>
+                <p>${date}</p>
+            </div>
+        `;
+    });
+}
+
 async function loadCourses() {
     const { data, error } = await supabaseClient
         .from("courses")
@@ -170,9 +234,12 @@ if (bookingError) {
         console.log(updateError);
     }
 
+    await createCustomerNotification(`Du hast den Kurs ${course.title} gebucht.`, "Buchung");
+
     alert("Kurs erfolgreich gebucht!");
     loadCourses();
     loadBookings();
+    loadCustomerNotifications();
 }
 
 async function customerHasOverlappingBooking(newStart, newEnd) {
@@ -270,10 +337,14 @@ async function cancelBooking(bookingId, courseId, currentParticipants) {
         })
         .eq("id", courseId);
 
+    await createCustomerNotification("Eine Buchung wurde storniert.", "Stornierung");
+
     alert("Buchung storniert.");
     loadCourses();
     loadBookings();
+    loadCustomerNotifications();
 }
 
 loadCourses();
 loadBookings();
+loadCustomerNotifications();
