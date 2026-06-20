@@ -5,6 +5,44 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 console.log("Supabase connected!");
 
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+if (!currentUser) {
+    alert("Bitte zuerst einloggen.");
+    window.location.href = "login.html";
+    throw new Error("Not logged in");
+}
+
+if (currentUser.role !== "admin") {
+    alert("Diese Seite ist nur für Admins.");
+    window.location.href = "login.html";
+    throw new Error("Not admin");
+}
+
+function setupProfileBox() {
+    const profileBtn = document.getElementById("profileBtn");
+    const profileBox = document.getElementById("profileBox");
+    const profileName = document.getElementById("profileName");
+    const profileRole = document.getElementById("profileRole");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    profileName.innerText = `Name: ${currentUser.name || "-"}`;
+    profileRole.innerText = `Rolle: ${currentUser.role || "-"}`;
+
+    profileBtn.onclick = () => {
+        profileBox.style.display =
+            profileBox.style.display === "block" ? "none" : "block";
+    };
+
+    logoutBtn.onclick = () => {
+        localStorage.removeItem("currentUser");
+        window.location.href = "login.html";
+    };
+}
+
+setupProfileBox();
+
+
 async function loadWorkDetails() {
     const { data, error } = await supabaseClient
         .from("courses")
