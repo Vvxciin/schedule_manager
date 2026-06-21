@@ -1079,8 +1079,83 @@ document.getElementById("clearRoomBtn").onclick = clearRoomForm;
 
 document.getElementById("refreshNotificationsBtn").onclick = loadNotifications;
 
+
+
+// for info part
+async function loadDashboardNumbers() {
+    const today = new Date().toISOString().split("T")[0];
+
+    const { data: trainers } = await supabaseClient
+        .from("trainers")
+        .select("id");
+
+    const { data: sick } = await supabaseClient
+        .from("absences")
+        .select("id")
+        .lte("start_date", today)
+        .gte("end_date", today);
+
+    const { data: customers } = await supabaseClient
+        .from("customers")
+        .select("id");
+    
+    const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+
+    const { data: newCustomers } = await supabaseClient
+        .from("customers")
+        .select("id")
+        .gte("created_at", weekAgo.toISOString());
+
+    const { data: todayCourses } = await supabaseClient
+        .from("courses")
+        .select(`
+            id,
+            start_time,
+            rooms (
+                branches (
+                    id
+                )
+            )
+        `)
+        .gte("start_time", today + "T00:00:00")
+        .lte("start_time", today + "T23:59:59");
+
+    document.getElementById("active-trainers-count").innerText =
+        trainers ? trainers.length : 0;
+
+    document.getElementById("sick-trainers-count").innerText =
+        `${sick ? sick.length : 0} krank gemeldet`;
+
+    document.getElementById("customers-count").innerText =
+        customers ? customers.length : 0;
+
+    document.getElementById("today-courses-count").innerText =
+        todayCourses ? todayCourses.length : 0;
+
+    document.getElementById("new-customers-week").innerText =
+    `+${newCustomers ? newCustomers.length : 0} diese Woche`;
+
+    const branchIds = new Set();
+
+    if (todayCourses) {
+        todayCourses.forEach(course => {
+            const branchId = course.rooms?.branches?.id;
+            if (branchId) {
+                branchIds.add(branchId);
+            }
+        });
+    }
+
+    document.getElementById("today-branches-count").innerText =
+        branchIds.size;
+}
+
+
 loadTrainers();
 loadBranches();
 loadRooms();
 loadCourses();
 loadNotifications();
+
+loadDashboardNumbers();
