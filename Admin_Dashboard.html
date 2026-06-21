@@ -18,10 +18,23 @@
         <a href="Arbeitsstundenübersicht.html">Arbeitsstundeübersicht</a>
     </div>
     <!-- Right -->
+    
     <div class="navbar-right">
         <img src="images/notification.png" class="navbar-icons">
-        <img src="images/user.png" class="navbar-icons">
+
+        <img src="images/user.png" class="navbar-icons" id="profileBtn">
+
+        <div id="profileBox" class="profile-box">
+            <p id="profileName"></p>
+            <p id="profileRole"></p>
+            <button id="logoutBtn">Logout</button>
+        </div>
     </div>
+
+
+
+
+
 </nav>
 
 <!-- info -->
@@ -103,9 +116,15 @@
 <!-- Heutige Kursen -->
 <div class="class-contaners">
     <div class="trainer-table">
+
+
+       
         <p class="table-text">Heutige Kurse</p>
         
         <button class="add-trainer-btn" id="openCourseModal">+ Kurs erstellen</button>
+        <button class="add-trainer-btn" id="openRoomModal" style="right: 250px;">
+            + Räume / Filialen
+        </button>
 
         <div class="inner-table" style="height: 90%">
             <table class="schedule-table">
@@ -219,6 +238,65 @@
 
         <button id="saveCourseBtn">Speichern</button>
         <button class="closeModalBtn" data-modal="courseModal">Schließen</button>
+    </div>
+</div>
+
+<div class="modal" id="roomModal">
+    <div class="modal-content wide-modal">
+        <h2>Räume / Filialen verwalten</h2>
+
+        <div class="modal-section">
+            <h3>Filiale hinzufügen / bearbeiten</h3>
+
+            <input id="branchName" placeholder="Filialname, z.B. fit-activ Mitte">
+            <input id="branchLocation" placeholder="Adresse / Standort">
+
+            <button id="saveBranchBtn">Filiale speichern</button>
+            <button id="clearBranchBtn">Neue Filiale</button>
+
+            <div class="small-table-box">
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Standort</th>
+                            <th>Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody id="branch-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal-section">
+            <h3>Raum hinzufügen / bearbeiten</h3>
+
+            <input id="roomName" placeholder="Raumname, z.B. Room A">
+            <input id="roomCapacity" type="number" min="1" max="20" value="20" placeholder="Kapazität">
+            <input id="roomLocation" placeholder="Raum-Standort / Etage">
+
+            <label>Filiale</label>
+            <select id="roomBranch"></select>
+
+            <button id="saveRoomBtn">Raum speichern</button>
+            <button id="clearRoomBtn">Neuer Raum</button>
+
+            <div class="small-table-box">
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Kapazität</th>
+                            <th>Filiale</th>
+                            <th>Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody id="room-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <button class="closeModalBtn" data-modal="roomModal">Schließen</button>
     </div>
 </div>
 

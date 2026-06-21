@@ -6,9 +6,162 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 console.log("Supabase connected!");
 
 
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+if (!currentUser) {
+    alert("Bitte zuerst einloggen.");
+    window.location.href = "login.html";
+    throw new Error("Not logged in");
+}
+
+if (currentUser.role !== "admin") {
+    alert("Diese Seite ist nur für Admins.");
+    window.location.href = "login.html";
+    throw new Error("Not admin");
+}
+
+function setupProfileBox() {
+    const profileBtn = document.getElementById("profileBtn");
+    const profileBox = document.getElementById("profileBox");
+    const profileName = document.getElementById("profileName");
+    const profileRole = document.getElementById("profileRole");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    profileName.innerText = `Name: ${currentUser.name || "-"}`;
+    profileRole.innerText = `Rolle: ${currentUser.role || "-"}`;
+
+    profileBtn.onclick = () => {
+        profileBox.style.display =
+            profileBox.style.display === "block" ? "none" : "block";
+    };
+
+    logoutBtn.onclick = () => {
+        localStorage.removeItem("currentUser");
+        window.location.href = "login.html";
+    };
+}
+
+setupProfileBox();
+
+
+async function createNotification(message, type = "info", userId = null) {
+    const notificationData = {
+        message: message,
+        type: type,
+        is_read: false
+    };
+
+    if (userId) {
+        notificationData.user_id = userId;
+    }
+
+    const { error } = await supabaseClient
+        .from("notifications")
+        .insert(notificationData);
+
+    if (error) {
+        console.log("Create notification error:", error);
+    }
+}
+
+async function loadNotifications() {
+    const { data, error } = await supabaseClient
+        .from("notifications")
+        .select("message, type, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+    if (error) {
+        console.log("Notification Error:", error);
+        return;
+    }
+
+    const notificationBody = document.getElementById("notification-body");
+
+    if (!notificationBody) {
+        console.log("notification-body not found");
+        return;
+    }
+
+    notificationBody.innerHTML = "";
+
+    if (!data || data.length === 0) {
+        notificationBody.innerHTML = `
+            <div class="notification-item">
+                Noch keine Benachrichtigungen.
+            </div>
+        `;
+        return;
+    }
+
+    data.forEach(notification => {
+        const date = new Date(notification.created_at).toLocaleString("de-DE", {
+            day: "2-digit",
+            month: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        notificationBody.innerHTML += `
+            <div class="notification-item">
+                <div>
+                    <span class="notification-type">${notification.type || "Info"}:</span>
+                    ${notification.message}
+                </div>
+                <div class="notification-date">${date}</div>
+            </div>
+        `;
+    });
+}
+
+
 let editingTrainerId = null;
 let editingCourseId = null;
+let editingBranchId = null;
+let editingRoomId = null;
 
+
+
+function clearBranchForm() {
+    editingBranchId = null;
+
+    document.getElementById("branchName").value = "";
+    document.getElementById("branchLocation").value = "";
+}
+
+function clearRoomForm() {
+    editingRoomId = null;
+
+    document.getElementById("roomName").value = "";
+    document.getElementById("roomCapacity").value = 20;
+    document.getElementById("roomLocation").value = "";
+
+    const roomBranch = document.getElementById("roomBranch");
+
+    if (roomBranch.options.length > 0) {
+        roomBranch.selectedIndex = 0;
+    }
+}
+
+function openBranchEditModal(branch) {
+    editingBranchId = branch.id;
+
+    document.getElementById("branchName").value = branch.name || "";
+    document.getElementById("branchLocation").value = branch.location || "";
+
+    openModal("roomModal");
+}
+
+function openRoomEditModal(room) {
+    editingRoomId = room.id;
+
+    document.getElementById("roomName").value = room.name || "";
+    document.getElementById("roomCapacity").value = room.capacity || 20;
+    document.getElementById("roomLocation").value = room.location || "";
+    document.getElementById("roomBranch").value = room.branch_id || "";
+
+    openModal("roomModal");
+}
 
 
 
@@ -79,6 +232,12 @@ document.getElementById("openCustomerModal").onclick = () => {
 };
 document.getElementById("openCourseModal").onclick = () => openModal("courseModal");
 
+document.getElementById("openRoomModal").onclick = () => {
+    openModal("roomModal");
+    loadBranches();
+    loadRooms();
+};
+
 document.querySelectorAll(".closeModalBtn").forEach(button => {
     button.onclick = () => closeModal(button.dataset.modal);
 });
@@ -131,12 +290,67 @@ async function loadTrainers() {
     });
 }
 
+async function loadBranches() {
+    const { data, error } = await supabaseClient
+        .from("branches")
+        .select("id, name, location")
+        .order("name", { ascending: true });
+
+    if (error) {
+        console.log("Branch Error:", error);
+        return;
+    }
+
+    const branchBody = document.getElementById("branch-body");
+    const roomBranch = document.getElementById("roomBranch");
+
+    if (branchBody) {
+        branchBody.innerHTML = "";
+    }
+
+    if (roomBranch) {
+        roomBranch.innerHTML = "";
+    }
+
+    data.forEach(branch => {
+        const safeBranch = JSON.stringify(branch).replaceAll("'", "&apos;");
+
+        if (branchBody) {
+            branchBody.innerHTML += `
+                <tr>
+                    <td>${branch.name || "-"}</td>
+                    <td>${branch.location || "-"}</td>
+                    <td>
+                        <button class="edit-btn" onclick='openBranchEditModal(${safeBranch})'>
+                            Bearbeiten
+                        </button>
+                        <button class="delete-btn" onclick="deleteBranch('${branch.id}', '${branch.name}')">
+                            Löschen
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        if (roomBranch) {
+            roomBranch.innerHTML += `
+                <option value="${branch.id}">
+                    ${branch.name}
+                </option>
+            `;
+        }
+    });
+}
+
 async function loadRooms() {
     const { data, error } = await supabaseClient
         .from("rooms")
         .select(`
             id,
             name,
+            capacity,
+            location,
+            branch_id,
             branches (
                 name
             )
@@ -149,14 +363,45 @@ async function loadRooms() {
     }
 
     const courseRoom = document.getElementById("courseRoom");
-    courseRoom.innerHTML = "";
+    const roomBody = document.getElementById("room-body");
+
+    if (courseRoom) {
+        courseRoom.innerHTML = "";
+    }
+
+    if (roomBody) {
+        roomBody.innerHTML = "";
+    }
 
     data.forEach(room => {
-        courseRoom.innerHTML += `
-            <option value="${room.id}">
-                ${room.name} - ${room.branches?.name || "Kein Studio"}
-            </option>
-        `;
+        const branchName = room.branches?.name || "Keine Filiale";
+        const safeRoom = JSON.stringify(room).replaceAll("'", "&apos;");
+
+        if (courseRoom) {
+            courseRoom.innerHTML += `
+                <option value="${room.id}">
+                    ${room.name} - ${branchName}
+                </option>
+            `;
+        }
+
+        if (roomBody) {
+            roomBody.innerHTML += `
+                <tr>
+                    <td>${room.name || "-"}</td>
+                    <td>${room.capacity || "-"}</td>
+                    <td>${branchName}</td>
+                    <td>
+                        <button class="edit-btn" onclick='openRoomEditModal(${safeRoom})'>
+                            Bearbeiten
+                        </button>
+                        <button class="delete-btn" onclick="deleteRoom('${room.id}', '${room.name}')">
+                            Löschen
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
     });
 }
 
@@ -223,7 +468,7 @@ function timesOverlap(startA, endA, startB, endB) {
     return startA < endB && endA > startB;
 }
 
-async function hasTrainerConflict(trainerId, startTime, endTime) {
+async function hasTrainerConflict(trainerId, startTime, endTime, ignoredCourseId = null) {
     const { data, error } = await supabaseClient
         .from("courses")
         .select("id, start_time, end_time")
@@ -239,6 +484,10 @@ async function hasTrainerConflict(trainerId, startTime, endTime) {
     const newEnd = new Date(endTime);
 
     return data.some(course => {
+        if (ignoredCourseId && course.id === ignoredCourseId) {
+            return false;
+        }
+
         const existingStart = new Date(course.start_time);
         const existingEnd = new Date(course.end_time);
 
@@ -246,7 +495,7 @@ async function hasTrainerConflict(trainerId, startTime, endTime) {
     });
 }
 
-async function hasRoomConflict(roomId, startTime, endTime) {
+async function hasRoomConflict(roomId, startTime, endTime, ignoredCourseId = null) {
     const { data, error } = await supabaseClient
         .from("courses")
         .select("id, start_time, end_time")
@@ -262,6 +511,10 @@ async function hasRoomConflict(roomId, startTime, endTime) {
     const newEnd = new Date(endTime);
 
     return data.some(course => {
+        if (ignoredCourseId && course.id === ignoredCourseId) {
+            return false;
+        }
+
         const existingStart = new Date(course.start_time);
         const existingEnd = new Date(course.end_time);
 
@@ -305,9 +558,11 @@ async function deleteTrainer(trainerId, trainerName) {
         return;
     }
 
+    await createNotification(`Trainer ${trainerName} wurde gelöscht.`, "Trainer");
     alert("Trainer gelöscht!");
     loadTrainers();
-}
+    loadNotifications();
+    }
 
 async function deleteCourse(courseId, courseTitle) {
     const confirmed = confirm(`Kurs ${courseTitle} wirklich löschen? Alle Buchungen für diesen Kurs werden auch gelöscht.`);
@@ -338,9 +593,11 @@ async function deleteCourse(courseId, courseTitle) {
         return;
     }
 
+    await createNotification(`Kurs ${courseTitle} wurde gelöscht.`, "Kurs");
     alert("Kurs gelöscht!");
     loadCourses();
-}
+    loadNotifications();
+    }
 
 async function deleteCustomer(customerId, customerName) {
     const confirmed = confirm(`Kunde ${customerName} wirklich löschen? Alle Buchungen von diesem Kunden werden auch gelöscht.`);
@@ -371,9 +628,202 @@ async function deleteCustomer(customerId, customerName) {
         return;
     }
 
+    await createNotification(`Kunde ${customerName} wurde gelöscht.`, "Kunde");
     alert("Kunde gelöscht!");
     loadCustomers();
+    loadNotifications();
 }
+
+
+
+async function saveBranch() {
+    const name = document.getElementById("branchName").value.trim();
+    const location = document.getElementById("branchLocation").value.trim();
+
+    if (!name) {
+        alert("Bitte Filialname eingeben.");
+        return;
+    }
+
+    const branchData = {
+        name: name,
+        location: location
+    };
+
+    let result;
+
+    if (editingBranchId) {
+        result = await supabaseClient
+            .from("branches")
+            .update(branchData)
+            .eq("id", editingBranchId);
+    } else {
+        result = await supabaseClient
+            .from("branches")
+            .insert(branchData);
+    }
+
+    if (result.error) {
+        console.log("Save branch error:", result.error);
+        alert("Filiale konnte nicht gespeichert werden.");
+        return;
+    }
+
+    await createNotification(
+        editingBranchId
+            ? `Filiale ${name} wurde aktualisiert.`
+            : `Filiale ${name} wurde hinzugefügt.`,
+        "Filiale"
+    );
+
+    alert(editingBranchId ? "Filiale aktualisiert!" : "Filiale gespeichert!");
+
+    clearBranchForm();
+    loadBranches();
+    loadRooms();
+    loadNotifications();
+}
+
+async function saveRoom() {
+    const name = document.getElementById("roomName").value.trim();
+    const capacity = Number(document.getElementById("roomCapacity").value);
+    const location = document.getElementById("roomLocation").value.trim();
+    const branchId = document.getElementById("roomBranch").value;
+
+    if (!name || !branchId) {
+        alert("Bitte Raumname und Filiale eingeben.");
+        return;
+    }
+
+    if (capacity < 1 || capacity > 20) {
+        alert("Die Raumkapazität muss zwischen 1 und 20 liegen.");
+        return;
+    }
+
+    const roomData = {
+        name: name,
+        capacity: capacity,
+        location: location,
+        branch_id: branchId
+    };
+
+    let result;
+
+    if (editingRoomId) {
+        result = await supabaseClient
+            .from("rooms")
+            .update(roomData)
+            .eq("id", editingRoomId);
+    } else {
+        result = await supabaseClient
+            .from("rooms")
+            .insert(roomData);
+    }
+
+    if (result.error) {
+        console.log("Save room error:", result.error);
+        alert("Raum konnte nicht gespeichert werden.");
+        return;
+    }
+
+    await createNotification(
+        editingRoomId
+            ? `Raum ${name} wurde aktualisiert.`
+            : `Raum ${name} wurde hinzugefügt.`,
+        "Raum"
+    );
+
+    alert(editingRoomId ? "Raum aktualisiert!" : "Raum gespeichert!");
+
+    clearRoomForm();
+    loadRooms();
+    loadNotifications();
+}
+
+async function deleteBranch(branchId, branchName) {
+    const confirmed = confirm(`Filiale ${branchName} wirklich löschen?`);
+
+    if (!confirmed) {
+        return;
+    }
+
+    const { data: roomsInBranch, error: roomCheckError } = await supabaseClient
+        .from("rooms")
+        .select("id")
+        .eq("branch_id", branchId);
+
+    if (roomCheckError) {
+        console.log("Branch delete check error:", roomCheckError);
+        alert("Filiale konnte nicht geprüft werden.");
+        return;
+    }
+
+    if (roomsInBranch.length > 0) {
+        alert("Diese Filiale hat noch Räume. Bitte zuerst die Räume löschen oder verschieben.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("branches")
+        .delete()
+        .eq("id", branchId);
+
+    if (error) {
+        console.log("Delete branch error:", error);
+        alert("Filiale konnte nicht gelöscht werden.");
+        return;
+    }
+
+    await createNotification(`Filiale ${branchName} wurde gelöscht.`, "Filiale");
+
+    alert("Filiale gelöscht!");
+    loadBranches();
+    loadRooms();
+    loadNotifications();
+}
+
+async function deleteRoom(roomId, roomName) {
+    const confirmed = confirm(`Raum ${roomName} wirklich löschen?`);
+
+    if (!confirmed) {
+        return;
+    }
+
+    const { data: coursesInRoom, error: courseCheckError } = await supabaseClient
+        .from("courses")
+        .select("id")
+        .eq("room_id", roomId)
+        .neq("status", "cancelled");
+
+    if (courseCheckError) {
+        console.log("Room delete check error:", courseCheckError);
+        alert("Raum konnte nicht geprüft werden.");
+        return;
+    }
+
+    if (coursesInRoom.length > 0) {
+        alert("Dieser Raum ist noch Kursen zugewiesen. Bitte zuerst diese Kurse löschen oder bearbeiten.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("rooms")
+        .delete()
+        .eq("id", roomId);
+
+    if (error) {
+        console.log("Delete room error:", error);
+        alert("Raum konnte nicht gelöscht werden.");
+        return;
+    }
+
+    await createNotification(`Raum ${roomName} wurde gelöscht.`, "Raum");
+
+    alert("Raum gelöscht!");
+    loadRooms();
+    loadNotifications();
+}
+
 
 async function saveTrainer() {
     const name = document.getElementById("trainerName").value.trim();
@@ -415,11 +865,19 @@ async function saveTrainer() {
         return;
     }
 
-    alert(editingTrainerId ? "Trainer aktualisiert!" : "Trainer gespeichert!");
+    await createNotification(
+    editingTrainerId
+        ? `Trainer ${name} wurde aktualisiert.`
+        : `Trainer ${name} wurde hinzugefügt.`,
+    "Trainer"
+);
 
-    closeModal("trainerModal");
-    clearTrainerForm();
-    loadTrainers();
+alert(editingTrainerId ? "Trainer aktualisiert!" : "Trainer gespeichert!");
+
+closeModal("trainerModal");
+clearTrainerForm();
+loadTrainers();
+loadNotifications();
 }
 
 async function loadCustomers() {
@@ -476,11 +934,14 @@ async function saveCustomer() {
         return;
     }
 
+    await createNotification(`Kunde ${name} wurde hinzugefügt.`, "Kunde");
+
     alert("Kunde gespeichert!");
     document.getElementById("customerName").value = "";
     document.getElementById("customerEmail").value = "";
     document.getElementById("customerPhone").value = "";
     loadCustomers();
+    loadNotifications();
 }
 
 async function saveCourse() {
@@ -520,14 +981,25 @@ async function saveCourse() {
     const endTime =
         `${courseDate}T${String(endDate.getHours()).padStart(2, "0")}:${String(endDate.getMinutes()).padStart(2, "0")}`;
 
-    const trainerConflict = await hasTrainerConflict(trainerId, startTime, endTime);
+    const trainerConflict = await hasTrainerConflict(
+    trainerId,
+    startTime,
+    endTime,
+    editingCourseId
+);
 
     if (trainerConflict) {
         alert("Dieser Trainer hat zu dieser Zeit schon einen Kurs.");
         return;
     }
 
-    const roomConflict = await hasRoomConflict(roomId, startTime, endTime);
+    const roomConflict = await hasRoomConflict(
+        roomId,
+        startTime,
+        endTime,
+        editingCourseId
+    );
+
 
     if (roomConflict) {
         alert("Dieser Raum ist zu dieser Zeit schon belegt.");
@@ -581,15 +1053,34 @@ if (editingCourseId) {
         return;
     }
 
+    await createNotification(
+    editingCourseId
+        ? `Kurs ${title} wurde aktualisiert.`
+        : `Kurs ${title} wurde erstellt.`,
+    "Kurs"
+);
+
     alert("Kurs gespeichert!");
     closeModal("courseModal");
+    editingCourseId = null;
     loadCourses();
+    loadNotifications();
 }
 
 document.getElementById("saveTrainerBtn").onclick = saveTrainer;
 document.getElementById("saveCustomerBtn").onclick = saveCustomer;
 document.getElementById("saveCourseBtn").onclick = saveCourse;
 
+document.getElementById("saveBranchBtn").onclick = saveBranch;
+document.getElementById("saveRoomBtn").onclick = saveRoom;
+
+document.getElementById("clearBranchBtn").onclick = clearBranchForm;
+document.getElementById("clearRoomBtn").onclick = clearRoomForm;
+
+document.getElementById("refreshNotificationsBtn").onclick = loadNotifications;
+
 loadTrainers();
+loadBranches();
 loadRooms();
 loadCourses();
+loadNotifications();
