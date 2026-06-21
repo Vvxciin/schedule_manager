@@ -102,8 +102,11 @@
     background-color: white;
     border: 1px solid black;
     border-radius: 20px;
-    min-height: 700px;
-    height: auto;
+   
+   /* min-height: 700px;
+    height: auto;*/
+    height: 700px;
+    overflow-y: auto;
 }
 
 .verfugbar_title{
@@ -143,8 +146,10 @@
     border: 1px solid black;
     border-radius: 20px;
 
-    min-height: 300px;
-    height: auto;
+    /*min-height: 300px;
+    height: auto;*/
+    height: 300px;
+    overflow-y: auto;
 
     box-sizing: border-box;
 }
@@ -155,8 +160,10 @@
     border: 1px solid black;
     border-radius: 20px;
 
-    min-height: 220px;
-    height: auto;
+    /*min-height: 220px;
+    height: auto;*/
+    height: 220px;
+    overflow-y: auto;
 
     box-sizing: border-box;
 }
