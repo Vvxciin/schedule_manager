@@ -274,6 +274,7 @@
     border-radius: 20px;
 
     height: 400px;
+    overflow-y: auto;
 
     box-sizing: border-box;
 }
@@ -341,7 +342,8 @@
     border: 1px solid black;
     border-radius: 20px;
 
-    height: 220px;
+    height: 350px;
+    overflow-y: auto;
 
     box-sizing: border-box;
 }
