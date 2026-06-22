@@ -368,16 +368,10 @@ async function generateSelectedWeek() {
     const weekStart = formatDate(currentWeekStart);
     const fillProbability = Number(document.getElementById("fillProbability").value);
 
-    const confirmed = confirm(
-        `Wochenplan für die Woche ab ${weekStart} generieren?\n\n` +
-        `Stärke: ${fillProbability * 100}%`
-    );
-
-    if (!confirmed) {
-        return;
-    }
-
-    setStatus("Wochenplan wird automatisch generiert...", "warning");
+    console.log("Calling RPC with:", {
+        p_week_start: weekStart,
+        p_fill_probability: fillProbability
+    });
 
     const { data, error } = await supabaseClient.rpc(
         "generate_weekly_schedule_auto",
@@ -387,39 +381,15 @@ async function generateSelectedWeek() {
         }
     );
 
+    console.log("RPC data:", data);
+    console.log("RPC error:", error);
+
     if (error) {
-        console.log("Generate weekly schedule error:", error);
-        setStatus("Wochenplan konnte nicht generiert werden.", "error");
-
-        if (error.message) {
-            alert("Fehler: " + error.message);
-        } else {
-            alert("Wochenplan konnte nicht generiert werden.");
-        }
-
+        alert("RPC Fehler: " + error.message);
         return;
     }
 
-    console.log("Generation result:", data);
-
-    let message = "Wochenplan wurde generiert.";
-
-    if (data && data.length > 0) {
-        const result = data[0];
-
-        message =
-            `Wochenplan fertig. Erstellt: ${result.created_courses}, ` +
-            `Übersprungen: ${result.skipped_existing}, ` +
-            `ohne Trainer: ${result.no_trainer_slots}`;
-
-        if (result.last_error) {
-            message += `. Letzter Fehler: ${result.last_error}`;
-        }
-    }
-
-    setStatus(message);
-    alert(message);
-
+    alert("Wochenplan generiert!");
     await loadWeeklySchedule();
 }
 
