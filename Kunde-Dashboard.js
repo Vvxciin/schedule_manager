@@ -19,6 +19,12 @@ const CURRENT_CUSTOMER_ID = currentUser.id;
 let coursesPage = 0;
 const COURSES_PER_PAGE = 60;
 let loadedCourses = [];
+let activeFilters = {
+    search: "",
+    studio: "",
+    day: "",
+    time: ""
+};
 
 function setupProfileBox() {
     const profileBtn = document.getElementById("profileBtn");
@@ -60,6 +66,11 @@ async function createCustomerNotification(message, type = "Buchung") {
 }
 
 async function loadCustomerNotifications() {
+
+
+
+
+
     const { data, error } = await supabaseClient
         .from("notifications")
         .select("id, message, type, created_at")
@@ -107,6 +118,94 @@ async function loadCustomerNotifications() {
     });
 }
 
+
+function applyClientFilters(courses) {
+    return courses.filter(course => {
+        const search = activeFilters.search.toLowerCase();
+
+        const title = course.title?.toLowerCase() || "";
+        const trainer = course.trainers?.name?.toLowerCase() || "";
+        const room = course.rooms?.name?.toLowerCase() || "";
+        const studio = course.rooms?.branches?.name || "";
+
+        if (search) {
+            const matchesSearch =
+                title.includes(search) ||
+                trainer.includes(search) ||
+                room.toLowerCase().includes(search) ||
+                studio.toLowerCase().includes(search);
+
+            if (!matchesSearch) return false;
+        }
+
+        if (activeFilters.studio && studio !== activeFilters.studio) {
+            return false;
+        }
+
+        if (activeFilters.time) {
+            const hour = new Date(course.start_time).getHours();
+
+            if (activeFilters.time === "morning" && !(hour < 12)) return false;
+            if (activeFilters.time === "afternoon" && !(hour >= 12 && hour < 17)) return false;
+            if (activeFilters.time === "evening" && !(hour >= 17)) return false;
+        }
+
+        return true;
+    });
+}
+
+
+async function loadStudioFilterOptions() {
+    const { data, error } = await supabaseClient
+        .from("branches")
+        .select("name")
+        .order("name", { ascending: true });
+
+    if (error) {
+        console.log("Studio filter error:", error);
+        return;
+    }
+
+    const studioFilter = document.getElementById("studioFilter");
+
+    studioFilter.innerHTML = `<option value="">Alle Studios</option>`;
+
+    (data || []).forEach(branch => {
+        studioFilter.innerHTML += `
+            <option value="${branch.name}">
+                ${branch.name}
+            </option>
+        `;
+    });
+}
+
+function setupCourseFilters() {
+    document.getElementById("filterButton").onclick = () => {
+        activeFilters.search = document.getElementById("courseSearchInput").value.trim();
+        activeFilters.studio = document.getElementById("studioFilter").value;
+        activeFilters.day = document.getElementById("dayFilter").value;
+        activeFilters.time = document.getElementById("timeFilter").value;
+
+        loadCourses(true);
+    };
+
+    document.getElementById("resetFilterButton").onclick = () => {
+        document.getElementById("courseSearchInput").value = "";
+        document.getElementById("studioFilter").value = "";
+        document.getElementById("dayFilter").value = "";
+        document.getElementById("timeFilter").value = "";
+
+        activeFilters = {
+            search: "",
+            studio: "",
+            day: "",
+            time: ""
+        };
+
+        loadCourses(true);
+    };
+}
+
 async function loadCourses(reset = true) {
     if (reset) {
         coursesPage = 0;
@@ -117,30 +216,53 @@ async function loadCourses(reset = true) {
     const from = coursesPage * COURSES_PER_PAGE;
     const to = from + COURSES_PER_PAGE - 1;
 
-    const { data, error } = await supabaseClient
-        .from("courses")
-        .select(`
-            id,
-            title,
-            start_time,
-            end_time,
-            max_participants,
-            current_participants,
-            status,
-            trainers(name),
-            rooms(name, branches(name))
-        `)
-        .eq("status", "scheduled")
-        .gte("start_time", now)
-        .order("start_time", { ascending: true })
-        .range(from, to);
+
+
+
+
+   let query = supabaseClient
+    .from("courses")
+    .select(`
+        id,
+        title,
+        start_time,
+        end_time,
+        max_participants,
+        current_participants,
+        status,
+        trainers(name),
+        rooms(name, branches(name))
+    `)
+    .eq("status", "scheduled")
+    .gte("start_time", now)
+    .order("start_time", { ascending: true });
+
+if (activeFilters.day) {
+    const dayStart = new Date(activeFilters.day);
+    dayStart.setHours(0, 0, 0, 0);
+
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+
+    query = query
+        .gte("start_time", dayStart.toISOString())
+        .lt("start_time", dayEnd.toISOString());
+}
+
+query = query.range(from, to);
+
+const { data, error } = await query;
+
+
+
 
     if (error) {
         console.log("Courses error:", error);
         return;
     }
 
-    loadedCourses = loadedCourses.concat(data || []);
+    const filteredData = applyClientFilters(data || []);
+    loadedCourses = loadedCourses.concat(filteredData);
     renderCourses(data && data.length === COURSES_PER_PAGE);
 
     coursesPage++;
@@ -398,6 +520,8 @@ async function cancelBooking(bookingId, courseId, currentParticipants) {
     loadCustomerNotifications();
 }
 
+loadStudioFilterOptions();
+setupCourseFilters();
 loadCourses();
 loadBookings();
 loadCustomerNotifications();
