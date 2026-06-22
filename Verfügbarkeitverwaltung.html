@@ -12,7 +12,7 @@
 <!-- Navbar -->
 <nav class="navbar">
     <div class="navbar-logo">
-        Fit & Aktive
+        Fit & Aktiv
     </div>
     <p class="navbar-text">Verfügbarkeitverwaltung</p>
     <!-- Right -->
@@ -26,15 +26,18 @@
 <!-- Meine Verfugbarkeit -->
 <div class="meine_verfuegbarkeit_container">
     <div>
-        <p class="titles" style="padding: 0px">Meine Verfügbarkeit-KW XX (XX.XX. - XX.XX.XXXX)</p>
-        <p class="gray_text">Teilzeit (Nachmittags)</p>
+        <p class="titles" id="weekTitle" style="padding: 0px">
+            Mein Wochenplan
+        </p>
+        <p class="gray_text" id="trainerInfoText">Trainer</p>
     </div>
 
-    <p class="gray_text" style="margin-left: 35%;">Beschäftigungsart:</p>
+    <p class="gray_text" style="margin-left: auto;">Woche auswählen:</p>
 
     <div class="week-buttons">
-        <button class="vorherig-neachste-button">← Vorherige Woche</button>
-        <button class="vorherig-neachste-button">Nächste Woche →</button>
+        <button class="vorherig-neachste-button" id="prevWeekBtn">← Vorherige Woche</button>
+        <button class="vorherig-neachste-button" id="currentWeekBtn">Aktuelle Woche</button>
+        <button class="vorherig-neachste-button" id="nextWeekBtn">Nächste Woche →</button>
     </div>
 </div>
 
@@ -47,72 +50,14 @@
 
         <div class="legend">
             <div><span class="box available"></span>Verfügbar</div>
-            <div><span class="box assigned"></span>Kurs zugewiesen</div>
             <div><span class="box unavailable"></span>Nicht verfügbar</div>
             <div><span class="box absent"></span>Abwesenheit</div>
         </div>
 
         <!-- Table -->
-        <table class="week-table">
-            <thead>
-            <tr>
-                <th>Zeit</th>
-                <th>Mo</th>
-                <th>Di</th>
-                <th>Mi</th>
-                <th>Do</th>
-                <th>Fr</th>
-                <th>Sa</th>
-            </tr>
-            </thead>
-
-            <tbody>
-            <tr>
-                <td>08:00</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-                <td>09:00</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-                <td>10:00</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-                <td>11:00</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-                <td>12:00</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-                <td>13:00</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-                <td>14:00</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-                <td>15:00</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-                <td>16:00</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-                <td>17:00</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-                <td>18:00</td>
-                <td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-
-            </tbody>
+       <table class="week-table">
+             <thead id="trainerScheduleHead"></thead>
+             <tbody id="trainerScheduleBody"></tbody>
         </table>
     </div>
 
@@ -122,32 +67,6 @@
             <p class="titles">Anwesenheit Melden</p>
             <hr>
 
-<p class="titles">Verfügbarkeit eintragen</p>
-
-<form id="availability-form">
-
-    <label>Wochentag</label>
-
-    <select id="availability-day">
-        <option value="1">Montag</option>
-        <option value="2">Dienstag</option>
-        <option value="3">Mittwoch</option>
-        <option value="4">Donnerstag</option>
-        <option value="5">Freitag</option>
-        <option value="6">Samstag</option>
-    </select>
-
-    <label>Von</label>
-    <input type="time" id="availability-start">
-
-    <label>Bis</label>
-    <input type="time" id="availability-end">
-
-    <button type="submit">
-        Verfügbarkeit speichern
-    </button>
-
-</form>
 
 <div id="availability-list"></div>
 

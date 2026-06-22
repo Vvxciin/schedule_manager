@@ -1,4 +1,3 @@
-/* Navbar-how to run it? */
 .navbar {
     top: 15px;
     left: 0;
@@ -18,6 +17,22 @@
     color: black;
     font-weight: bold;
     font-size: 30px;
+}
+.navbar-menu {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.navbar-menu a {
+    text-decoration: none;
+    color: black;
+    font-size: 20px;
+    font-family: sans-serif;
+}
+
+.navbar-menu a:hover {
+    font-weight: bold;
 }
 
 .navbar-text{

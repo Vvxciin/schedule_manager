@@ -137,6 +137,105 @@
     background-color: #f5cfd5;
 }
 
+.week-table th {
+    background-color: #eef2f7;
+    font-family: sans-serif;
+    font-size: 14px;
+}
+
+.week-table td {
+    vertical-align: top;
+    padding: 6px;
+    height: 95px;
+    background-color: #eeeeee;
+}
+
+.course-card {
+    border-left: 5px solid black;
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    line-height: 1.35;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    text-align: left;
+}
+
+.course-title {
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 4px;
+    color: black;
+}
+
+.course-meta {
+    color: #222;
+    font-size: 13px;
+}
+
+.course-status {
+    margin-top: 5px;
+    font-size: 12px;
+    color: gray;
+}
+
+.course-card.pilates {
+    background-color: #dff4ff;
+    border-left-color: #82b5d6;
+}
+
+.course-card.yoga {
+    background-color: #f3e5f0;
+    border-left-color: #e09ed2;
+}
+
+.course-card.spinning {
+    background-color: #f8f1dd;
+    border-left-color: #ecd4aa;
+}
+
+.course-card.krafttraining {
+    background-color: #eaf8f7;
+    border-left-color: #a4ebe8;
+}
+
+.course-card.functional-fit {
+    background-color: #f2ddff;
+    border-left-color: #dab5fc;
+}
+
+.course-card.cancelled,
+.course-card.canceled {
+    background-color: #ffdddd;
+    border-left-color: #dda8a8;
+    opacity: 0.85;
+}
+
+.absence-cell {
+    background-color: #f5cfd5 !important;
+}
+
+.absence-block {
+    background-color: #f5cfd5;
+    border-left: 5px solid #d96b7c;
+    border-radius: 8px;
+    padding: 8px;
+    font-family: sans-serif;
+    font-weight: bold;
+    color: #7a1f2b;
+    text-align: left;
+}
+
+.absence-list-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 0 20px 10px 20px;
+    border-radius: 8px;
+    font-family: sans-serif;
+    font-size: 14px;
+}
+
 /* Table */
 .week-table{
     width: 95%;

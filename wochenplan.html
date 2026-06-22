@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wochenplan</title>
+    <link rel="stylesheet" href="Wochenplan.css">
+</head>
+<body style="background-color: #f3f3f3">
+
+<nav class="navbar">
+    <div class="navbar-logo">
+        Fit & Aktiv
+    </div>
+
+    <div class="navbar-menu">
+        <a href="Admin_Dashboard.html">Dashboard</a>
+        <a href="Arbeitsstundenübersicht.html">Arbeitsstundeübersicht</a>
+        <a href="Wochenplan.html">Wochenplan</a>
+    </div>
+
+    <div class="navbar-right">
+        <img src="images/notification.png" class="navbar-icons">
+        <img src="images/user.png" class="navbar-icons" id="profileBtn">
+
+        <div id="profileBox" class="profile-box">
+            <p id="profileName"></p>
+            <p id="profileRole"></p>
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div>
+        <h1>Wochenplan</h1>
+        <p>Automatische Kursplanung von 08:00 bis 18:00 Uhr</p>
+    </div>
+
+    <div class="week-actions">
+        <button id="prevWeekBtn">← Vorherige Woche</button>
+        <button id="todayWeekBtn">Aktuelle Woche</button>
+        <button id="nextWeekBtn">Nächste Woche →</button>
+    </div>
+</div>
+
+<div class="control-card">
+    <div class="control-group">
+        <label>Woche auswählen</label>
+        <input type="date" id="weekPicker">
+    </div>
+
+    <div class="control-group">
+        <label>Generierungsstärke</label>
+        <select id="fillProbability">
+            <option value="1.0">100% - voller Plan</option>
+            <option value="0.5">50% - Testplan</option>
+            <option value="0.2">20% - kleiner Test</option>
+        </select>
+    </div>
+
+    <div class="control-buttons">
+        <button id="loadWeekBtn">Woche laden</button>
+        <button id="generateWeekBtn" class="generate-btn">Wochenplan generieren</button>
+    </div>
+</div>
+
+<div class="status-card" id="statusCard">
+    <span id="statusText">Bereit.</span>
+</div>
+
+<div class="week-title-card">
+    <h2 id="weekLabel">Woche</h2>
+    <p id="courseCountLabel">0 Kurse geladen</p>
+</div>
+
+<div class="schedule-wrapper">
+    <table class="weekly-schedule-table">
+        <thead id="scheduleHead"></thead>
+        <tbody id="scheduleBody"></tbody>
+    </table>
+</div>
+
+<div class="legend-card">
+    <div class="legend-item"><span class="legend-dot pilates"></span>Pilates</div>
+    <div class="legend-item"><span class="legend-dot yoga"></span>Yoga</div>
+    <div class="legend-item"><span class="legend-dot spinning"></span>Spinning</div>
+    <div class="legend-item"><span class="legend-dot krafttraining"></span>Krafttraining</div>
+    <div class="legend-item"><span class="legend-dot functional"></span>Functional Fit</div>
+    <div class="legend-item"><span class="legend-dot cancelled"></span>Abgesagt</div>
+</div>
+
+<div class="end">
+    <p>Fit & Aktiv Scheduling System</p>
+    <p>Version 1.0.0 | © 2026 Fit & Aktiv</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="Wochenplan.js"></script>
+</body>
+</html>

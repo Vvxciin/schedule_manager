@@ -5,6 +5,8 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 console.log("Supabase connected!");
 
+
+// Admin protection
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 if (!currentUser) {
@@ -13,14 +15,39 @@ if (!currentUser) {
     throw new Error("Not logged in");
 }
 
-if (currentUser.role !== "trainer") {
-    alert("Diese Seite ist nur für Trainer.");
+if (currentUser.role !== "admin") {
+    alert("Diese Seite ist nur für Admins.");
     window.location.href = "login.html";
-    throw new Error("Not trainer");
+    throw new Error("Not admin");
 }
 
-const trainerId = currentUser.id;
 
+// Profile box
+function setupProfileBox() {
+    const profileBtn = document.getElementById("profileBtn");
+    const profileBox = document.getElementById("profileBox");
+    const profileName = document.getElementById("profileName");
+    const profileRole = document.getElementById("profileRole");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    profileName.innerText = `Name: ${currentUser.name || "-"}`;
+    profileRole.innerText = `Rolle: ${currentUser.role || "-"}`;
+
+    profileBtn.onclick = () => {
+        profileBox.style.display =
+            profileBox.style.display === "block" ? "none" : "block";
+    };
+
+    logoutBtn.onclick = () => {
+        localStorage.removeItem("currentUser");
+        window.location.href = "login.html";
+    };
+}
+
+setupProfileBox();
+
+
+// Week setup
 let currentWeekStart = getMonday(new Date());
 
 const days = [
@@ -34,6 +61,8 @@ const days = [
 
 const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
 
+
+// Room order inside every time block
 const roomOrder = {
     "Room A": 1,
     "Room B": 2,
@@ -49,9 +78,11 @@ function getRoomRank(course) {
     return roomOrder[roomName] || 999;
 }
 
+
+// Date helpers
 function getMonday(date) {
     const d = new Date(date);
-    const day = d.getDay();
+    const day = d.getDay(); // Sunday = 0, Monday = 1
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
 
     d.setDate(diff);
@@ -95,18 +126,42 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
-function updateWeekTitle() {
-    const weekEnd = addDays(currentWeekStart, 5);
 
-    document.getElementById("weekTitle").innerText =
-        `Mein Wochenplan (${formatGermanDate(currentWeekStart)} - ${formatGermanDate(weekEnd)})`;
+// Status box
+function setStatus(message, type = "success") {
+    const statusCard = document.getElementById("statusCard");
+    const statusText = document.getElementById("statusText");
 
-    document.getElementById("trainerInfoText").innerText =
-        `${currentUser.name || "Trainer"} | ${currentUser.role || "-"}`;
+    statusCard.classList.remove("error", "warning");
+
+    if (type === "error") {
+        statusCard.classList.add("error");
+    }
+
+    if (type === "warning") {
+        statusCard.classList.add("warning");
+    }
+
+    statusText.innerText = message;
 }
 
-function buildTrainerScheduleHeader() {
-    const head = document.getElementById("trainerScheduleHead");
+
+// Labels
+function updateWeekLabels() {
+    const weekPicker = document.getElementById("weekPicker");
+    const weekLabel = document.getElementById("weekLabel");
+
+    const weekEnd = addDays(currentWeekStart, 5);
+
+    weekPicker.value = formatDate(currentWeekStart);
+    weekLabel.innerText =
+        `${formatGermanDate(currentWeekStart)} - ${formatGermanDate(weekEnd)}`;
+}
+
+
+// Build table header
+function buildScheduleHeader() {
+    const scheduleHead = document.getElementById("scheduleHead");
 
     let html = `
         <tr>
@@ -119,20 +174,24 @@ function buildTrainerScheduleHeader() {
 
     html += `</tr>`;
 
-    head.innerHTML = html;
+    scheduleHead.innerHTML = html;
 }
 
-async function loadTrainerWeeklySchedule() {
-    updateWeekTitle();
+
+// Load weekly courses
+async function loadWeeklySchedule() {
+    updateWeekLabels();
 
     const weekStart = formatDate(currentWeekStart);
     const weekAfter = formatDate(addDays(currentWeekStart, 7));
+
+    setStatus("Wochenplan wird geladen...", "warning");
 
     const { data, error } = await supabaseClient
         .from("courses")
         .select(`
             id,
-            title,
+         title,
             trainer_id,
             room_id,
             start_time,
@@ -140,6 +199,9 @@ async function loadTrainerWeeklySchedule() {
             max_participants,
             current_participants,
             status,
+            trainers (
+                name
+            ),
             rooms (
                 name,
                 branch_id,
@@ -148,30 +210,36 @@ async function loadTrainerWeeklySchedule() {
                 )
             )
         `)
-        .eq("trainer_id", trainerId)
         .gte("start_time", weekStart + "T00:00:00")
         .lt("start_time", weekAfter + "T00:00:00")
         .order("start_time", { ascending: true });
 
     if (error) {
-        console.log("Load trainer schedule error:", error);
+        console.log("Load weekly schedule error:", error);
+        setStatus("Wochenplan konnte nicht geladen werden.", "error");
         alert("Wochenplan konnte nicht geladen werden.");
         return;
     }
 
-    await renderTrainerSchedule(data || []);
+    renderSchedule(data || []);
+
+    document.getElementById("courseCountLabel").innerText =
+        `${data ? data.length : 0} Kurse geladen`;
+
+    setStatus("Wochenplan geladen.");
 }
 
-async function renderTrainerSchedule(courses) {
-    const body = document.getElementById("trainerScheduleBody");
-    body.innerHTML = "";
 
-    const absences = await loadAbsencesForCurrentWeek();
+// Render schedule table
+function renderSchedule(courses) {
+    const scheduleBody = document.getElementById("scheduleBody");
+    scheduleBody.innerHTML = "";
 
     days.forEach(day => {
         const row = document.createElement("tr");
 
         const dayCell = document.createElement("th");
+        dayCell.className = "day-cell";
         dayCell.innerText = day.label;
         row.appendChild(dayCell);
 
@@ -179,21 +247,7 @@ async function renderTrainerSchedule(courses) {
 
         hours.forEach(hour => {
             const cell = document.createElement("td");
-
-            const slotStart = `${currentDayDate}T${String(hour).padStart(2, "0")}:00:00`;
-            const slotEnd = `${currentDayDate}T${String(hour + 1).padStart(2, "0")}:00:00`;
-
-            const isAbsent = absences.some(absence => {
-                const absenceStart = `${absence.start_date}T${absence.start_time || "00:00:00"}`;
-                const absenceEnd = `${absence.end_date}T${absence.end_time || "23:59:59"}`;
-
-                return absenceStart < slotEnd && absenceEnd > slotStart;
-            });
-
-            if (isAbsent) {
-                cell.classList.add("absence-cell");
-                cell.innerHTML = `<div class="absence-block">Abwesend</div>`;
-            }
+            cell.className = "time-cell empty-cell";
 
             const coursesForCell = courses
                 .filter(course => {
@@ -206,20 +260,28 @@ async function renderTrainerSchedule(courses) {
 
                     return courseDate === currentDayDate && courseHour === hour;
                 })
-                .sort((a, b) => getRoomRank(a) - getRoomRank(b));
+                .sort((a, b) => {
+                    return getRoomRank(a) - getRoomRank(b);
+                });
+
+            if (coursesForCell.length > 0) {
+                cell.classList.remove("empty-cell");
+            }
 
             coursesForCell.forEach(course => {
-                cell.appendChild(createTrainerCourseCard(course));
+                cell.appendChild(createCourseCard(course));
             });
 
             row.appendChild(cell);
         });
 
-        body.appendChild(row);
+        scheduleBody.appendChild(row);
     });
 }
 
-function createTrainerCourseCard(course) {
+
+// Course card
+function createCourseCard(course) {
     const card = document.createElement("div");
 
     const titleClass = getCourseClass(course.title);
@@ -230,6 +292,7 @@ function createTrainerCourseCard(course) {
     const start = course.start_time ? course.start_time.slice(11, 16) : "--:--";
     const end = course.end_time ? course.end_time.slice(11, 16) : "--:--";
 
+    const trainerName = course.trainers?.name || "Kein Trainer";
     const roomName = course.rooms?.name || "Kein Raum";
     const branchName = course.rooms?.branches?.name || "Keine Filiale";
 
@@ -237,19 +300,20 @@ function createTrainerCourseCard(course) {
     const maxParticipants = course.max_participants ?? "-";
     const status = course.status || "-";
 
-    // No class name displayed.
-    // Trainer already knows this is their own plan.
     card.innerHTML = `
-        <div class="course-title">${escapeHtml(roomName)}</div>
+        <div class="course-title">${escapeHtml(trainerName)}</div>
+       
+        <div class="course-meta">Raum: ${escapeHtml(roomName)}</div>
         <div class="course-meta">Studio: ${escapeHtml(branchName)}</div>
         <div class="course-meta">TN: ${currentParticipants}/${maxParticipants}</div>
-        <div class="course-status">${escapeHtml(status)}</div>
+        <div class="course-status">Status: ${escapeHtml(status)}</div>
     `;
 
     card.onclick = () => {
         alert(
             `${course.title}\n` +
             `${start} - ${end}\n` +
+            `Trainer: ${trainerName}\n` +
             `Raum: ${roomName}\n` +
             `Studio: ${branchName}\n` +
             `Teilnehmer: ${currentParticipants}/${maxParticipants}\n` +
@@ -260,6 +324,8 @@ function createTrainerCourseCard(course) {
     return card;
 }
 
+
+// Course colors
 function getCourseClass(title) {
     const normalizedTitle = String(title || "").toLowerCase();
 
@@ -296,119 +362,110 @@ function getStatusClass(status) {
     return "";
 }
 
-async function saveAbsence(e) {
-    e.preventDefault();
 
-    const reason = document.querySelector(".absence-form select").value;
-    const fromDate = document.querySelectorAll(".absence-form input[type='date']")[0].value;
-    const toDate = document.querySelectorAll(".absence-form input[type='date']")[1].value;
-    const note = document.querySelector(".absence-form textarea").value.trim();
-
-    if (!fromDate || !toDate) {
-        alert("Bitte Von- und Bis-Datum auswählen.");
-        return;
-    }
-
-    if (toDate < fromDate) {
-        alert("Das Bis-Datum darf nicht vor dem Von-Datum liegen.");
-        return;
-    }
-
-    const { error } = await supabaseClient
-        .from("absences")
-        .insert({
-            trainer_id: trainerId,
-            reason: note || reason,
-            start_date: fromDate,
-            end_date: toDate,
-            start_time: "00:00",
-            end_time: "23:59:59",
-            status: reason
-        });
-
-    if (error) {
-        console.log("Supabase Error:", error);
-        alert(error.message);
-        return;
-    }
-
-    alert("Abwesenheit gespeichert.");
-
-    await loadAbsences();
-    await loadTrainerWeeklySchedule();
-}
-
-async function loadAbsences() {
-    const { data, error } = await supabaseClient
-        .from("absences")
-        .select("*")
-        .eq("trainer_id", trainerId)
-        .order("start_date", { ascending: false });
-
-    if (error) {
-        console.log("Load absences error:", error);
-        return;
-    }
-
-    const container = document.getElementById("absence-list");
-    container.innerHTML = "";
-
-    if (!data || data.length === 0) {
-        container.innerHTML = `
-            <div class="absence-list-item">
-                Noch keine Abwesenheiten gemeldet.
-            </div>
-        `;
-        return;
-    }
-
-    data.forEach(absence => {
-        container.innerHTML += `
-            <div class="absence-list-item">
-                <b>${escapeHtml(absence.status || "-")}</b><br>
-                ${escapeHtml(absence.start_date)} bis ${escapeHtml(absence.end_date)}<br>
-                ${escapeHtml(absence.reason || "")}
-            </div>
-        `;
-    });
-}
-
-async function loadAbsencesForCurrentWeek() {
+// Generate selected week
+async function generateSelectedWeek() {
     const weekStart = formatDate(currentWeekStart);
-    const weekAfter = formatDate(addDays(currentWeekStart, 7));
+    const fillProbability = Number(document.getElementById("fillProbability").value);
 
-    const { data, error } = await supabaseClient
-        .from("absences")
-        .select("*")
-        .eq("trainer_id", trainerId)
-        .lte("start_date", weekAfter)
-        .gte("end_date", weekStart);
+    const confirmed = confirm(
+        `Wochenplan für die Woche ab ${weekStart} generieren?\n\n` +
+        `Stärke: ${fillProbability * 100}%`
+    );
 
-    if (error) {
-        console.log("Load weekly absences error:", error);
-        return [];
+    if (!confirmed) {
+        return;
     }
 
-    return data || [];
+    setStatus("Wochenplan wird automatisch generiert...", "warning");
+
+    const { data, error } = await supabaseClient.rpc(
+        "generate_weekly_schedule_auto",
+        {
+            p_week_start: weekStart,
+            p_fill_probability: fillProbability
+        }
+    );
+
+    if (error) {
+        console.log("Generate weekly schedule error:", error);
+        setStatus("Wochenplan konnte nicht generiert werden.", "error");
+
+        if (error.message) {
+            alert("Fehler: " + error.message);
+        } else {
+            alert("Wochenplan konnte nicht generiert werden.");
+        }
+
+        return;
+    }
+
+    console.log("Generation result:", data);
+
+    let message = "Wochenplan wurde generiert.";
+
+    if (data && data.length > 0) {
+        const result = data[0];
+
+        message =
+            `Wochenplan fertig. Erstellt: ${result.created_courses}, ` +
+            `Übersprungen: ${result.skipped_existing}, ` +
+            `ohne Trainer: ${result.no_trainer_slots}`;
+
+        if (result.last_error) {
+            message += `. Letzter Fehler: ${result.last_error}`;
+        }
+    }
+
+    setStatus(message);
+    alert(message);
+
+    await loadWeeklySchedule();
 }
 
-document.querySelector(".absence-form").addEventListener("submit", saveAbsence);
 
+// Events
 document.getElementById("prevWeekBtn").onclick = async () => {
     currentWeekStart = addDays(currentWeekStart, -7);
-    await loadTrainerWeeklySchedule();
+    await loadWeeklySchedule();
 };
 
 document.getElementById("nextWeekBtn").onclick = async () => {
     currentWeekStart = addDays(currentWeekStart, 7);
-    await loadTrainerWeeklySchedule();
+    await loadWeeklySchedule();
 };
 
-document.getElementById("currentWeekBtn").onclick = async () => {
+document.getElementById("todayWeekBtn").onclick = async () => {
     currentWeekStart = getMonday(new Date());
-    await loadTrainerWeeklySchedule();
+    await loadWeeklySchedule();
 };
 
-buildTrainerScheduleHeader();
-loadTrainerWeeklySchedule();
-loadAbsences();
+document.getElementById("loadWeekBtn").onclick = async () => {
+    const chosenDate = document.getElementById("weekPicker").value;
+
+    if (!chosenDate) {
+        alert("Bitte Datum auswählen.");
+        return;
+    }
+
+    currentWeekStart = getMonday(new Date(chosenDate + "T00:00:00"));
+    await loadWeeklySchedule();
+};
+
+document.getElementById("generateWeekBtn").onclick = generateSelectedWeek;
+
+document.getElementById("weekPicker").onchange = async () => {
+    const chosenDate = document.getElementById("weekPicker").value;
+
+    if (!chosenDate) {
+        return;
+    }
+
+    currentWeekStart = getMonday(new Date(chosenDate + "T00:00:00"));
+    await loadWeeklySchedule();
+};
+
+
+// Start
+buildScheduleHeader();
+loadWeeklySchedule();

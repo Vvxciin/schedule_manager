@@ -1,0 +1,419 @@
+.navbar {
+    top: 15px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* logo at left, items at right */
+    align-items: center;
+    padding: 25px 45px; /* distances from left and up */
+    background-color: white; /* transaprent */
+    border: 1px solid black;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+
+.navbar-logo {
+    color: black;
+    font-weight: bold;
+    font-size: 30px;
+}
+.navbar-menu {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.navbar-menu a {
+    text-decoration: none;
+    color: black;
+    font-size: 20px;
+    font-family: sans-serif;
+}
+
+.navbar-menu a:hover {
+    font-weight: bold;
+}
+
+.navbar-text{
+    color: black;
+    text-align: center;
+    font-size: 30px;
+    margin: 0px;
+    font-family: sans-serif;
+}
+
+.navbar-icons{
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+    margin-left: 20px;
+}
+
+.profile-box {
+    display: none;
+    position: absolute;
+    top: 45px;
+    right: 0;
+
+    width: 220px;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 12px;
+    padding: 15px;
+    z-index: 1000;
+
+    font-family: sans-serif;
+}
+
+.profile-box p {
+    margin: 6px 0;
+}
+
+.profile-box button {
+    width: 100%;
+    height: 35px;
+    border: 1px solid black;
+    border-radius: 6px;
+    background-color: white;
+    cursor: pointer;
+}
+
+/* Page header */
+.page-header {
+    margin-top: 10px;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 25px 45px;
+    box-sizing: border-box;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-family: sans-serif;
+    font-size: 30px;
+}
+
+.page-header p {
+    margin: 8px 0 0 0;
+    color: gray;
+    font-family: sans-serif;
+    font-size: 18px;
+}
+
+.week-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.week-actions button,
+.control-buttons button {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 6px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-family: sans-serif;
+}
+
+/* Controls */
+.control-card {
+    margin-top: 10px;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 25px 45px;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: end;
+    gap: 25px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: sans-serif;
+}
+
+.control-group label {
+    color: gray;
+    font-size: 14px;
+}
+
+.control-group input,
+.control-group select {
+    height: 38px;
+    min-width: 230px;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    padding-left: 10px;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.generate-btn {
+    background-color: #e8fff0 !important;
+    border: 1px solid #0a8f3c !important;
+    font-weight: bold;
+}
+
+/* Status */
+.status-card {
+    margin-top: 10px;
+    background-color: #f5fff8;
+    border: 1px solid #18a957;
+    border-radius: 12px;
+    padding: 14px 25px;
+    font-family: sans-serif;
+}
+
+.status-card.error {
+    background-color: #fff1f1;
+    border-color: #cc0000;
+}
+
+.status-card.warning {
+    background-color: #fff8e1;
+    border-color: #d59b00;
+}
+
+/* Week title */
+.week-title-card {
+    margin-top: 10px;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 20px 45px;
+    box-sizing: border-box;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.week-title-card h2 {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+.week-title-card p {
+    margin: 0;
+    color: gray;
+    font-family: sans-serif;
+}
+
+/* Schedule */
+.schedule-wrapper {
+    margin-top: 10px;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.weekly-schedule-table {
+    width: 100%;
+    min-width: 1300px;
+    border-collapse: collapse;
+    font-family: sans-serif;
+}
+
+.weekly-schedule-table th,
+.weekly-schedule-table td {
+    border: 1px solid #cfd5dd;
+    vertical-align: top;
+}
+
+.weekly-schedule-table th {
+    background-color: #eef2f7;
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.day-cell {
+    background-color: #eef2f7;
+    width: 70px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: #1f2937;
+}
+
+.time-cell {
+    width: 120px;
+    height: 150px;
+    padding: 6px;
+    box-sizing: border-box;
+}
+
+.empty-cell {
+    background-color: #fafafa;
+}
+
+.course-card {
+    border-left: 5px solid black;
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    line-height: 1.35;
+    box-sizing: border-box;
+}
+
+.course-title {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 3px;
+}
+
+.course-meta {
+    color: #222;
+}
+
+.course-status {
+    margin-top: 5px;
+    font-size: 12px;
+    color: gray;
+}
+
+.course-card.pilates {
+    background-color: #dff4ff;
+    border-left-color: #82b5d6;
+}
+
+.course-card.yoga {
+    background-color: #f3e5f0;
+    border-left-color: #e09ed2;
+}
+
+.course-card.spinning {
+    background-color: #f8f1dd;
+    border-left-color: #ecd4aa;
+}
+
+.course-card.krafttraining {
+    background-color: #eaf8f7;
+    border-left-color: #a4ebe8;
+}
+
+.course-card.functional-fit {
+    background-color: #f2ddff;
+    border-left-color: #dab5fc;
+}
+
+.course-card.cancelled,
+.course-card.canceled {
+    background-color: #ffdddd;
+    border-left-color: #dda8a8;
+    opacity: 0.85;
+}
+
+/* Legend */
+.legend-card {
+    margin-top: 10px;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 18px 45px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    font-family: sans-serif;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
+.legend-dot.pilates {
+    background-color: #82b5d6;
+}
+
+.legend-dot.yoga {
+    background-color: #e09ed2;
+}
+
+.legend-dot.spinning {
+    background-color: #ecd4aa;
+}
+
+.legend-dot.krafttraining {
+    background-color: #a4ebe8;
+}
+
+.legend-dot.functional {
+    background-color: #dab5fc;
+}
+
+.legend-dot.cancelled {
+    background-color: #dda8a8;
+}
+
+/* Footer */
+.end {
+    margin-top: 10px;
+    width: 100%;
+    height: 70px;
+
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: white;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 50px;
+    box-sizing: border-box;
+
+    position: relative;
+    color: gray;
+}
+
+.end p {
+    margin: 0;
+}
+
+.end p:last-child {
+    position: absolute;
+    left: 85%;
+    transform: translateX(-50%);
+}
+
+@media (max-width: 900px) {
+    .page-header,
+    .control-card,
+    .week-title-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .week-actions,
+    .control-buttons {
+        flex-wrap: wrap;
+    }
+}
