@@ -669,6 +669,32 @@ function setupNotificationBell() {
     };
 }
 
+//------------
+/*for long out */
+function setupProfileBox() {
+    const profileBtn = document.getElementById("profileBtn");
+    const profileBox = document.getElementById("profileBox");
+    const profileName = document.getElementById("profileName");
+    const profileRole = document.getElementById("profileRole");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    profileName.innerText = `Name: ${currentUser.name}`;
+    profileRole.innerText = `Rolle: ${currentUser.role}`;
+
+    profileBtn.onclick = () => {
+        profileBox.style.display =
+            profileBox.style.display === "block"
+                ? "none"
+                : "block";
+    };
+
+    logoutBtn.onclick = () => {
+        localStorage.removeItem("currentUser");
+        window.location.href = "login.html";
+    };
+}
+setupProfileBox();
+//---------------------------
 setupNotificationBell();
 
 init();
