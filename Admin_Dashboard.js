@@ -917,11 +917,30 @@ async function saveTrainer() {
     }
 
     if (!editingTrainerId && !password) {
-        alert("Bitte Passwort für neuen Trainer eingeben.");
+    alert("Bitte Passwort für neuen Trainer eingeben.");
+    return;
+}
+
+if (!editingTrainerId) {
+    const { data: existingUser, error: existingUserError } = await supabaseClient
+        .from("users")
+        .select("id")
+        .eq("email", email)
+        .maybeSingle();
+
+    if (existingUserError) {
+        console.log("Existing user check error:", existingUserError);
+        alert("Email konnte nicht geprüft werden.");
         return;
     }
 
-    const trainerData = {
+    if (existingUser) {
+        alert("Diese Email existiert bereits. Bitte andere Email verwenden.");
+        return;
+    }
+}
+
+const trainerData = {
         name,
         email,
         phone_number: phoneNumber,
@@ -1016,11 +1035,28 @@ async function saveCustomer() {
     const password = document.getElementById("customerPassword").value.trim();
 
     if (!name || !email || !password) {
-        alert("Bitte Name, Email und Passwort eingeben.");
-        return;
-    }
+    alert("Bitte Name, Email und Passwort eingeben.");
+    return;
+}
 
-    const { error } = await supabaseClient
+const { data: existingUser, error: existingUserError } = await supabaseClient
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+
+if (existingUserError) {
+    console.log("Existing user check error:", existingUserError);
+    alert("Email konnte nicht geprüft werden.");
+    return;
+}
+
+if (existingUser) {
+    alert("Diese Email existiert bereits. Bitte andere Email verwenden.");
+    return;
+}
+
+const { error } = await supabaseClient
         .from("customers")
         .insert({
             name,
