@@ -119,6 +119,21 @@ let editingTrainerId = null;
 let editingCourseId = null;
 let editingBranchId = null;
 let editingRoomId = null;
+let allTrainersCache = [];
+
+function getLocalDateString(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+function addDays(date, days) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+}
 
 
 
@@ -253,32 +268,22 @@ async function loadTrainers() {
         return;
     }
 
-    const trainerBody = document.getElementById("trainer-body");
+    allTrainersCache = data || [];
+
+    fillCourseTrainerDropdown(allTrainersCache);
+    renderTrainerTable();
+}
+
+function fillCourseTrainerDropdown(trainers) {
     const courseTrainer = document.getElementById("courseTrainer");
 
-    trainerBody.innerHTML = "";
+    if (!courseTrainer) {
+        return;
+    }
+
     courseTrainer.innerHTML = "";
 
-    data.forEach(trainer => {
-        const safeTrainer = JSON.stringify(trainer).replaceAll("'", "&apos;");
-
-        trainerBody.innerHTML += `
-            <tr>
-                <td>${trainer.name}</td>
-                <td>${trainer.availability || "-"}</td>
-                <td>${trainer.working_hours || "-"} h</td>
-                <td>aktiv</td>
-                <td>
-                    <button class="edit-btn" onclick='openTrainerEditModal(${safeTrainer})'>
-                    Bearbeiten
-                    </button>
-                    <button class="delete-btn" onclick="deleteTrainer('${trainer.id}', '${trainer.name}')">
-                    Löschen
-                    </button>
-                </td>
-            </tr>
-        `;
-
+    trainers.forEach(trainer => {
         courseTrainer.innerHTML += `
             <option 
                 value="${trainer.id}" 
@@ -286,6 +291,65 @@ async function loadTrainers() {
                 data-working-hours="${trainer.working_hours || 0}">
                 ${trainer.name} (${trainer.availability || "-"})
             </option>
+        `;
+    });
+}
+
+function renderTrainerTable() {
+    const trainerBody = document.getElementById("trainer-body");
+    const searchInput = document.getElementById("trainerSearchInput");
+
+    if (!trainerBody) {
+        return;
+    }
+
+    const searchTerm = searchInput
+        ? searchInput.value.toLowerCase().trim()
+        : "";
+
+    const filteredTrainers = allTrainersCache.filter(trainer => {
+        const name = String(trainer.name || "").toLowerCase();
+        const email = String(trainer.email || "").toLowerCase();
+        const phone = String(trainer.phone_number || "").toLowerCase();
+        const availability = String(trainer.availability || "").toLowerCase();
+
+        return (
+            name.includes(searchTerm) ||
+            email.includes(searchTerm) ||
+            phone.includes(searchTerm) ||
+            availability.includes(searchTerm)
+        );
+    });
+
+    trainerBody.innerHTML = "";
+
+    if (filteredTrainers.length === 0) {
+        trainerBody.innerHTML = `
+            <tr>
+                <td colspan="5">Keine Trainer gefunden.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    filteredTrainers.forEach(trainer => {
+        const safeTrainer = JSON.stringify(trainer).replaceAll("'", "&apos;");
+
+        trainerBody.innerHTML += `
+            <tr>
+                <td>${trainer.name || "-"}</td>
+                <td>${trainer.availability || "-"}</td>
+                <td>${trainer.working_hours || "-"} h</td>
+                <td>aktiv</td>
+                <td>
+                    <button class="edit-btn" onclick='openTrainerEditModal(${safeTrainer})'>
+                        Bearbeiten
+                    </button>
+                    <button class="delete-btn" onclick="deleteTrainer('${trainer.id}', '${trainer.name}')">
+                        Löschen
+                    </button>
+                </td>
+            </tr>
         `;
     });
 }
@@ -406,6 +470,9 @@ async function loadRooms() {
 }
 
 async function loadCourses() {
+    const today = getLocalDateString(new Date());
+    const tomorrow = getLocalDateString(addDays(new Date(), 1));
+
     const { data, error } = await supabaseClient
         .from("courses")
         .select(`
@@ -428,6 +495,8 @@ async function loadCourses() {
                 )
             )
         `)
+        .gte("start_time", today + "T00:00:00")
+        .lt("start_time", tomorrow + "T00:00:00")
         .order("start_time", { ascending: true });
 
     if (error) {
@@ -435,8 +504,18 @@ async function loadCourses() {
         return;
     }
 
+    
     const courseBody = document.getElementById("course-body");
     courseBody.innerHTML = "";
+    
+    if (!data || data.length === 0) {
+        courseBody.innerHTML = `
+            <tr>
+                <td colspan="8">Heute gibt es keine Kurse.</td>
+            </tr>
+        `;
+        return;
+    }
 
     data.forEach(course => {
         const start = course.start_time.slice(11, 16);
@@ -449,7 +528,7 @@ async function loadCourses() {
              : "";
 
         courseBody.innerHTML += `
-            <tr>
+            <tr class="${cancelledClass}">
                 <td>${start} - ${end}</td>
                 <td>${course.title}</td>
                 <td>${course.trainers?.name || "-"}</td>
@@ -1148,6 +1227,13 @@ async function loadDashboardNumbers() {
         branchIds.size;
 }
 
+const trainerSearchInput = document.getElementById("trainerSearchInput");
+
+if (trainerSearchInput) {
+    trainerSearchInput.addEventListener("input", () => {
+        renderTrainerTable();
+    });
+}
 
 loadTrainers();
 loadBranches();
