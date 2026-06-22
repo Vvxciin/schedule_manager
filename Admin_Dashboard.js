@@ -119,6 +119,21 @@ let editingTrainerId = null;
 let editingCourseId = null;
 let editingBranchId = null;
 let editingRoomId = null;
+let allTrainersCache = [];
+
+function getLocalDateString(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+function addDays(date, days) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+}
 
 
 
@@ -253,32 +268,22 @@ async function loadTrainers() {
         return;
     }
 
-    const trainerBody = document.getElementById("trainer-body");
+    allTrainersCache = data || [];
+
+    fillCourseTrainerDropdown(allTrainersCache);
+    renderTrainerTable();
+}
+
+function fillCourseTrainerDropdown(trainers) {
     const courseTrainer = document.getElementById("courseTrainer");
 
-    trainerBody.innerHTML = "";
+    if (!courseTrainer) {
+        return;
+    }
+
     courseTrainer.innerHTML = "";
 
-    data.forEach(trainer => {
-        const safeTrainer = JSON.stringify(trainer).replaceAll("'", "&apos;");
-
-        trainerBody.innerHTML += `
-            <tr>
-                <td>${trainer.name}</td>
-                <td>${trainer.availability || "-"}</td>
-                <td>${trainer.working_hours || "-"} h</td>
-                <td>aktiv</td>
-                <td>
-                    <button class="edit-btn" onclick='openTrainerEditModal(${safeTrainer})'>
-                    Bearbeiten
-                    </button>
-                    <button class="delete-btn" onclick="deleteTrainer('${trainer.id}', '${trainer.name}')">
-                    Löschen
-                    </button>
-                </td>
-            </tr>
-        `;
-
+    trainers.forEach(trainer => {
         courseTrainer.innerHTML += `
             <option 
                 value="${trainer.id}" 
@@ -286,6 +291,65 @@ async function loadTrainers() {
                 data-working-hours="${trainer.working_hours || 0}">
                 ${trainer.name} (${trainer.availability || "-"})
             </option>
+        `;
+    });
+}
+
+function renderTrainerTable() {
+    const trainerBody = document.getElementById("trainer-body");
+    const searchInput = document.getElementById("trainerSearchInput");
+
+    if (!trainerBody) {
+        return;
+    }
+
+    const searchTerm = searchInput
+        ? searchInput.value.toLowerCase().trim()
+        : "";
+
+    const filteredTrainers = allTrainersCache.filter(trainer => {
+        const name = String(trainer.name || "").toLowerCase();
+        const email = String(trainer.email || "").toLowerCase();
+        const phone = String(trainer.phone_number || "").toLowerCase();
+        const availability = String(trainer.availability || "").toLowerCase();
+
+        return (
+            name.includes(searchTerm) ||
+            email.includes(searchTerm) ||
+            phone.includes(searchTerm) ||
+            availability.includes(searchTerm)
+        );
+    });
+
+    trainerBody.innerHTML = "";
+
+    if (filteredTrainers.length === 0) {
+        trainerBody.innerHTML = `
+            <tr>
+                <td colspan="5">Keine Trainer gefunden.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    filteredTrainers.forEach(trainer => {
+        const safeTrainer = JSON.stringify(trainer).replaceAll("'", "&apos;");
+
+        trainerBody.innerHTML += `
+            <tr>
+                <td>${trainer.name || "-"}</td>
+                <td>${trainer.availability || "-"}</td>
+                <td>${trainer.working_hours || "-"} h</td>
+                <td>aktiv</td>
+                <td>
+                    <button class="edit-btn" onclick='openTrainerEditModal(${safeTrainer})'>
+                        Bearbeiten
+                    </button>
+                    <button class="delete-btn" onclick="deleteTrainer('${trainer.id}', '${trainer.name}')">
+                        Löschen
+                    </button>
+                </td>
+            </tr>
         `;
     });
 }
@@ -406,6 +470,9 @@ async function loadRooms() {
 }
 
 async function loadCourses() {
+    const today = getLocalDateString(new Date());
+    const tomorrow = getLocalDateString(addDays(new Date(), 1));
+
     const { data, error } = await supabaseClient
         .from("courses")
         .select(`
@@ -428,6 +495,8 @@ async function loadCourses() {
                 )
             )
         `)
+        .gte("start_time", today + "T00:00:00")
+        .lt("start_time", tomorrow + "T00:00:00")
         .order("start_time", { ascending: true });
 
     if (error) {
@@ -435,15 +504,31 @@ async function loadCourses() {
         return;
     }
 
+    
     const courseBody = document.getElementById("course-body");
     courseBody.innerHTML = "";
+    
+    if (!data || data.length === 0) {
+        courseBody.innerHTML = `
+            <tr>
+                <td colspan="8">Heute gibt es keine Kurse.</td>
+            </tr>
+        `;
+        return;
+    }
 
     data.forEach(course => {
         const start = course.start_time.slice(11, 16);
         const end = course.end_time.slice(11, 16);
 
+        
+        const cancelledClass =
+            course.status === "cancelled" || course.status === "canceled"
+             ? "canceled-row"
+             : "";
+
         courseBody.innerHTML += `
-            <tr>
+            <tr class="${cancelledClass}">
                 <td>${start} - ${end}</td>
                 <td>${course.title}</td>
                 <td>${course.trainers?.name || "-"}</td>
@@ -456,7 +541,7 @@ async function loadCourses() {
                     Bearbeiten
                     </button>
                     <button class="delete-btn" onclick="deleteCourse('${course.id}', '${course.title}')">
-                    Löschen
+                    Absagen
                     </button>
                 </td>
             </tr>
@@ -473,7 +558,7 @@ async function hasTrainerConflict(trainerId, startTime, endTime, ignoredCourseId
         .from("courses")
         .select("id, start_time, end_time")
         .eq("trainer_id", trainerId)
-        .neq("status", "cancelled");
+        .neq("status", "canceled");
 
     if (error) {
         console.log("Trainer conflict check error:", error);
@@ -500,7 +585,7 @@ async function hasRoomConflict(roomId, startTime, endTime, ignoredCourseId = nul
         .from("courses")
         .select("id, start_time, end_time")
         .eq("room_id", roomId)
-        .neq("status", "cancelled");
+        .neq("status", "canceled");
 
     if (error) {
         console.log("Room conflict check error:", error);
@@ -534,7 +619,7 @@ async function deleteTrainer(trainerId, trainerName) {
         .from("courses")
         .select("id")
         .eq("trainer_id", trainerId)
-        .neq("status", "cancelled");
+        .neq("status", "canceled");
 
     if (courseCheckError) {
         console.log("Trainer delete check error:", courseCheckError);
@@ -565,36 +650,27 @@ async function deleteTrainer(trainerId, trainerName) {
     }
 
 async function deleteCourse(courseId, courseTitle) {
-    const confirmed = confirm(`Kurs ${courseTitle} wirklich löschen? Alle Buchungen für diesen Kurs werden auch gelöscht.`);
+    const confirmed = confirm(`Kurs ${courseTitle} wirklich absagen?`);
 
     if (!confirmed) {
         return;
     }
 
-    const { error: bookingDeleteError } = await supabaseClient
-        .from("bookings")
-        .delete()
-        .eq("course_id", courseId);
-
-    if (bookingDeleteError) {
-        console.log("Delete course bookings error:", bookingDeleteError);
-        alert("Buchungen für diesen Kurs konnten nicht gelöscht werden.");
-        return;
-    }
-
     const { error } = await supabaseClient
         .from("courses")
-        .delete()
+        .update({
+            status: "canceled"
+        })
         .eq("id", courseId);
 
     if (error) {
-        console.log("Delete course error:", error);
-        alert("Kurs konnte nicht gelöscht werden.");
+        console.log("Cancel course error:", error);
+        alert("Kurs konnte nicht abgesagt werden: " + error.message);
         return;
     }
 
-    await createNotification(`Kurs ${courseTitle} wurde gelöscht.`, "Kurs");
-    alert("Kurs gelöscht!");
+    await createNotification(`Kurs ${courseTitle} wurde abgesagt.`, "Kurs");
+    alert("Kurs abgesagt!");
     loadCourses();
     loadNotifications();
     }
@@ -793,7 +869,7 @@ async function deleteRoom(roomId, roomName) {
         .from("courses")
         .select("id")
         .eq("room_id", roomId)
-        .neq("status", "cancelled");
+        .neq("status", "canceled");
 
     if (courseCheckError) {
         console.log("Room delete check error:", courseCheckError);
@@ -1151,6 +1227,13 @@ async function loadDashboardNumbers() {
         branchIds.size;
 }
 
+const trainerSearchInput = document.getElementById("trainerSearchInput");
+
+if (trainerSearchInput) {
+    trainerSearchInput.addEventListener("input", () => {
+        renderTrainerTable();
+    });
+}
 
 loadTrainers();
 loadBranches();

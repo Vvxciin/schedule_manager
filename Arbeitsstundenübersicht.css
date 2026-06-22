@@ -440,3 +440,25 @@
     background-color: white;
     cursor: pointer;
 }
+
+.trainer-search {
+    width: 250px;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid black;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.cancelled-row,
+.cancelled-row td {
+    background-color: #ffdddd !important;
+    color: #990000;
+}
+
+.cancelled-row .delete-btn {
+    background-color: #ffb3b3;
+    color: #990000;
+    border: 1px solid #cc0000;
+}
+

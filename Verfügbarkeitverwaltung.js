@@ -290,7 +290,7 @@ function getStatusClass(status) {
     const normalizedStatus = String(status || "").toLowerCase();
 
     if (normalizedStatus === "cancelled" || normalizedStatus === "canceled") {
-        return "cancelled";
+        return "canceled";
     }
 
     return "";

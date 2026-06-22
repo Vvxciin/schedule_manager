@@ -49,6 +49,9 @@ setupProfileBox();
 
 // Week setup
 let currentWeekStart = getMonday(new Date());
+let editingCourseId = null;
+let trainersCache = [];
+let roomsCache = [];
 
 const days = [
     { label: "Mo", offset: 0 },
@@ -310,16 +313,8 @@ function createCourseCard(course) {
     `;
 
     card.onclick = () => {
-        alert(
-            `${course.title}\n` +
-            `${start} - ${end}\n` +
-            `Trainer: ${trainerName}\n` +
-            `Raum: ${roomName}\n` +
-            `Studio: ${branchName}\n` +
-            `Teilnehmer: ${currentParticipants}/${maxParticipants}\n` +
-            `Status: ${status}`
-        );
-    };
+    openCourseEditModal(course);
+};
 
     return card;
 }
@@ -356,7 +351,7 @@ function getStatusClass(status) {
     const normalizedStatus = String(status || "").toLowerCase();
 
     if (normalizedStatus === "cancelled" || normalizedStatus === "canceled") {
-        return "cancelled";
+        return "canceled";
     }
 
     return "";
@@ -368,16 +363,10 @@ async function generateSelectedWeek() {
     const weekStart = formatDate(currentWeekStart);
     const fillProbability = Number(document.getElementById("fillProbability").value);
 
-    const confirmed = confirm(
-        `Wochenplan für die Woche ab ${weekStart} generieren?\n\n` +
-        `Stärke: ${fillProbability * 100}%`
-    );
-
-    if (!confirmed) {
-        return;
-    }
-
-    setStatus("Wochenplan wird automatisch generiert...", "warning");
+    console.log("Calling RPC with:", {
+        p_week_start: weekStart,
+        p_fill_probability: fillProbability
+    });
 
     const { data, error } = await supabaseClient.rpc(
         "generate_weekly_schedule_auto",
@@ -387,44 +376,195 @@ async function generateSelectedWeek() {
         }
     );
 
+    console.log("RPC data:", data);
+    console.log("RPC error:", error);
+
     if (error) {
-        console.log("Generate weekly schedule error:", error);
-        setStatus("Wochenplan konnte nicht generiert werden.", "error");
-
-        if (error.message) {
-            alert("Fehler: " + error.message);
-        } else {
-            alert("Wochenplan konnte nicht generiert werden.");
-        }
-
+        alert("RPC Fehler: " + error.message);
         return;
     }
 
-    console.log("Generation result:", data);
-
-    let message = "Wochenplan wurde generiert.";
-
-    if (data && data.length > 0) {
-        const result = data[0];
-
-        message =
-            `Wochenplan fertig. Erstellt: ${result.created_courses}, ` +
-            `Übersprungen: ${result.skipped_existing}, ` +
-            `ohne Trainer: ${result.no_trainer_slots}`;
-
-        if (result.last_error) {
-            message += `. Letzter Fehler: ${result.last_error}`;
-        }
-    }
-
-    setStatus(message);
-    alert(message);
-
+    alert("Wochenplan generiert!");
     await loadWeeklySchedule();
 }
 
 
 // Events
+
+async function loadEditModalData() {
+    const { data: trainers, error: trainerError } = await supabaseClient
+        .from("trainers")
+        .select("id, name")
+        .order("name", { ascending: true });
+
+    if (trainerError) {
+        console.log("Load trainers error:", trainerError);
+        alert("Trainer konnten nicht geladen werden.");
+        return;
+    }
+
+    const { data: rooms, error: roomError } = await supabaseClient
+        .from("rooms")
+        .select(`
+            id,
+            name,
+            branches (
+                name
+            )
+        `)
+        .order("name", { ascending: true });
+
+    if (roomError) {
+        console.log("Load rooms error:", roomError);
+        alert("Räume konnten nicht geladen werden.");
+        return;
+    }
+
+    trainersCache = trainers || [];
+    roomsCache = rooms || [];
+
+    const trainerSelect = document.getElementById("editCourseTrainer");
+    const roomSelect = document.getElementById("editCourseRoom");
+
+    trainerSelect.innerHTML = "";
+    roomSelect.innerHTML = "";
+
+    trainersCache.forEach(trainer => {
+        trainerSelect.innerHTML += `
+            <option value="${trainer.id}">
+                ${escapeHtml(trainer.name || "-")}
+            </option>
+        `;
+    });
+
+    roomsCache.forEach(room => {
+        trainerSelect;
+        roomSelect.innerHTML += `
+            <option value="${room.id}">
+                ${escapeHtml(room.name || "-")} - ${escapeHtml(room.branches?.name || "Keine Filiale")}
+            </option>
+        `;
+    });
+}
+
+async function openCourseEditModal(course) {
+    editingCourseId = course.id;
+
+    await loadEditModalData();
+
+    document.getElementById("editCourseTitle").value = course.title || "Yoga";
+    document.getElementById("editCourseTrainer").value = course.trainer_id || "";
+    document.getElementById("editCourseRoom").value = course.room_id || "";
+
+    const startDate = new Date(course.start_time);
+
+    document.getElementById("editCourseDate").value =
+        course.start_time.slice(0, 10);
+
+    document.getElementById("editCourseStartTime").value =
+        startDate.toTimeString().slice(0, 5);
+
+    document.getElementById("editCourseStatus").value =
+        course.status || "scheduled";
+
+    document.getElementById("courseEditModal").style.display = "block";
+}
+
+function closeCourseEditModal() {
+    editingCourseId = null;
+    document.getElementById("courseEditModal").style.display = "none";
+}
+
+async function saveEditedCourse() {
+    if (!editingCourseId) {
+        alert("Kein Kurs ausgewählt.");
+        return;
+    }
+
+    const title = document.getElementById("editCourseTitle").value;
+    const trainerId = document.getElementById("editCourseTrainer").value;
+    const roomId = document.getElementById("editCourseRoom").value;
+    const courseDate = document.getElementById("editCourseDate").value;
+    const startTimeValue = document.getElementById("editCourseStartTime").value;
+    const status = document.getElementById("editCourseStatus").value;
+
+    if (!title || !trainerId || !roomId || !courseDate || !startTimeValue) {
+        alert("Bitte alle Kursdaten ausfüllen.");
+        return;
+    }
+
+    const startTime = `${courseDate}T${startTimeValue}:00`;
+
+    const startDate = new Date(startTime);
+    const endDate = new Date(startDate);
+    endDate.setHours(endDate.getHours() + 1);
+
+    const endTime =
+        `${courseDate}T${String(endDate.getHours()).padStart(2, "0")}:${String(endDate.getMinutes()).padStart(2, "0")}:00`;
+
+    const { error } = await supabaseClient
+        .from("courses")
+        .update({
+            title: title,
+            trainer_id: trainerId,
+            room_id: roomId,
+            start_time: startTime,
+            end_time: endTime,
+            status: status
+        })
+        .eq("id", editingCourseId);
+
+    if (error) {
+        console.log("Update course error:", error);
+
+        if (error.message && error.message.includes("weekly contract hours")) {
+            alert("Der Kurs überschreitet die Wochenstunden dieses Trainers.");
+        } else if (error.message && error.message.includes("nicht verfügbar")) {
+            alert("Der Trainer ist zu dieser Zeit nicht verfügbar/abwesend.");
+        } else if (error.message && error.message.includes("room")) {
+            alert("Der Raum ist zu dieser Zeit schon belegt.");
+        } else {
+            alert("Kurs konnte nicht aktualisiert werden: " + error.message);
+        }
+
+        return;
+    }
+
+    alert("Kurs aktualisiert.");
+    closeCourseEditModal();
+    await loadWeeklySchedule();
+}
+
+async function deleteEditedCourse() {
+    if (!editingCourseId) {
+        alert("Kein Kurs ausgewählt.");
+        return;
+    }
+
+    const confirmed = confirm("Diesen Kurs wirklich absagen?");
+
+    if (!confirmed) {
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("courses")
+        .update({
+            status: "canceled"
+        })
+        .eq("id", editingCourseId);
+
+    if (error) {
+        console.log("Cancel course error:", error);
+        alert("Kurs konnte nicht abgesagt werden: " + error.message);
+        return;
+    }
+
+    alert("Kurs wurde abgesagt.");
+    closeCourseEditModal();
+    await loadWeeklySchedule();
+}
+
 document.getElementById("prevWeekBtn").onclick = async () => {
     currentWeekStart = addDays(currentWeekStart, -7);
     await loadWeeklySchedule();
@@ -467,5 +607,16 @@ document.getElementById("weekPicker").onchange = async () => {
 
 
 // Start
+document.getElementById("saveEditCourseBtn").onclick = saveEditedCourse;
+document.getElementById("deleteEditCourseBtn").onclick = deleteEditedCourse;
+document.getElementById("closeEditCourseBtn").onclick = closeCourseEditModal;
+
+window.onclick = (event) => {
+    const modal = document.getElementById("courseEditModal");
+
+    if (event.target === modal) {
+        closeCourseEditModal();
+    }
+};
 buildScheduleHeader();
 loadWeeklySchedule();
