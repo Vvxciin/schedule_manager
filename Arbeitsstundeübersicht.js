@@ -173,7 +173,7 @@ async function loadCourses() {
                 )
             )
         `)
-        .neq("status", "cancelled")
+        .neq("status", "canceled")
         .order("start_time", { ascending: true });
 
     if (error) {

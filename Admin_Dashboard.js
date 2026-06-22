@@ -442,6 +442,12 @@ async function loadCourses() {
         const start = course.start_time.slice(11, 16);
         const end = course.end_time.slice(11, 16);
 
+        
+        const cancelledClass =
+            course.status === "cancelled" || course.status === "canceled"
+             ? "canceled-row"
+             : "";
+
         courseBody.innerHTML += `
             <tr>
                 <td>${start} - ${end}</td>
@@ -456,7 +462,7 @@ async function loadCourses() {
                     Bearbeiten
                     </button>
                     <button class="delete-btn" onclick="deleteCourse('${course.id}', '${course.title}')">
-                    Löschen
+                    Absagen
                     </button>
                 </td>
             </tr>
@@ -473,7 +479,7 @@ async function hasTrainerConflict(trainerId, startTime, endTime, ignoredCourseId
         .from("courses")
         .select("id, start_time, end_time")
         .eq("trainer_id", trainerId)
-        .neq("status", "cancelled");
+        .neq("status", "canceled");
 
     if (error) {
         console.log("Trainer conflict check error:", error);
@@ -500,7 +506,7 @@ async function hasRoomConflict(roomId, startTime, endTime, ignoredCourseId = nul
         .from("courses")
         .select("id, start_time, end_time")
         .eq("room_id", roomId)
-        .neq("status", "cancelled");
+        .neq("status", "canceled");
 
     if (error) {
         console.log("Room conflict check error:", error);
@@ -534,7 +540,7 @@ async function deleteTrainer(trainerId, trainerName) {
         .from("courses")
         .select("id")
         .eq("trainer_id", trainerId)
-        .neq("status", "cancelled");
+        .neq("status", "canceled");
 
     if (courseCheckError) {
         console.log("Trainer delete check error:", courseCheckError);
@@ -565,36 +571,27 @@ async function deleteTrainer(trainerId, trainerName) {
     }
 
 async function deleteCourse(courseId, courseTitle) {
-    const confirmed = confirm(`Kurs ${courseTitle} wirklich löschen? Alle Buchungen für diesen Kurs werden auch gelöscht.`);
+    const confirmed = confirm(`Kurs ${courseTitle} wirklich absagen?`);
 
     if (!confirmed) {
         return;
     }
 
-    const { error: bookingDeleteError } = await supabaseClient
-        .from("bookings")
-        .delete()
-        .eq("course_id", courseId);
-
-    if (bookingDeleteError) {
-        console.log("Delete course bookings error:", bookingDeleteError);
-        alert("Buchungen für diesen Kurs konnten nicht gelöscht werden.");
-        return;
-    }
-
     const { error } = await supabaseClient
         .from("courses")
-        .delete()
+        .update({
+            status: "canceled"
+        })
         .eq("id", courseId);
 
     if (error) {
-        console.log("Delete course error:", error);
-        alert("Kurs konnte nicht gelöscht werden.");
+        console.log("Cancel course error:", error);
+        alert("Kurs konnte nicht abgesagt werden: " + error.message);
         return;
     }
 
-    await createNotification(`Kurs ${courseTitle} wurde gelöscht.`, "Kurs");
-    alert("Kurs gelöscht!");
+    await createNotification(`Kurs ${courseTitle} wurde abgesagt.`, "Kurs");
+    alert("Kurs abgesagt!");
     loadCourses();
     loadNotifications();
     }
@@ -793,7 +790,7 @@ async function deleteRoom(roomId, roomName) {
         .from("courses")
         .select("id")
         .eq("room_id", roomId)
-        .neq("status", "cancelled");
+        .neq("status", "canceled");
 
     if (courseCheckError) {
         console.log("Room delete check error:", courseCheckError);

@@ -395,3 +395,18 @@
     background-color: white;
     cursor: pointer;
 }
+.canceled-row,
+.cancelled-row {
+    background-color: #ffdddd !important;
+    color: #990000;
+}
+.canceled-row td,
+.cancelled-row td {
+    background-color: #ffdddd !important;
+}
+.canceled-row .delete-btn,
+.cancelled-row .delete-btn {
+    background-color: #ffb3b3;
+    color: #990000;
+    border: 1px solid #cc0000;
+}
