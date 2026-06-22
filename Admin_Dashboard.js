@@ -220,6 +220,7 @@ function clearTrainerForm() {
     document.getElementById("trainerName").value = "";
     document.getElementById("trainerEmail").value = "";
     document.getElementById("trainerPhone").value = "";
+    document.getElementById("trainerPassword").value = "";
     document.getElementById("trainerAvailability").value = "Vollzeit";
 }
 
@@ -903,22 +904,28 @@ async function deleteRoom(roomId, roomName) {
 
 async function saveTrainer() {
     const name = document.getElementById("trainerName").value.trim();
-    const email = document.getElementById("trainerEmail").value.trim();
+    const email = document.getElementById("trainerEmail").value.trim().toLowerCase();
     const phoneNumber = document.getElementById("trainerPhone").value.trim();
+    const password = document.getElementById("trainerPassword").value.trim();
     const availability = document.getElementById("trainerAvailability").value;
 
     const workingHours = availability === "Vollzeit" ? 40 : 20;
 
-    if (!name) {
-        alert("Bitte Trainername eingeben.");
+    if (!name || !email) {
+        alert("Bitte Name und Email eingeben.");
+        return;
+    }
+
+    if (!editingTrainerId && !password) {
+        alert("Bitte Passwort für neuen Trainer eingeben.");
         return;
     }
 
     const trainerData = {
-        name: name,
-        email: email,
+        name,
+        email,
         phone_number: phoneNumber,
-        availability: availability,
+        availability,
         working_hours: workingHours
     };
 
@@ -941,19 +948,36 @@ async function saveTrainer() {
         return;
     }
 
+    if (password) {
+        const { error: userError } = await supabaseClient
+            .from("users")
+            .update({
+                password_hash: password,
+                role: "trainer",
+                name: name
+            })
+            .eq("email", email);
+
+        if (userError) {
+            console.log("User password update error:", userError);
+            alert("Trainer gespeichert, aber Passwort konnte nicht gesetzt werden.");
+            return;
+        }
+    }
+
     await createNotification(
-    editingTrainerId
-        ? `Trainer ${name} wurde aktualisiert.`
-        : `Trainer ${name} wurde hinzugefügt.`,
-    "Trainer"
-);
+        editingTrainerId
+            ? `Trainer ${name} wurde aktualisiert.`
+            : `Trainer ${name} wurde hinzugefügt.`,
+        "Trainer"
+    );
 
-alert(editingTrainerId ? "Trainer aktualisiert!" : "Trainer gespeichert!");
+    alert(editingTrainerId ? "Trainer aktualisiert!" : "Trainer gespeichert!");
 
-closeModal("trainerModal");
-clearTrainerForm();
-loadTrainers();
-loadNotifications();
+    closeModal("trainerModal");
+    clearTrainerForm();
+    loadTrainers();
+    loadNotifications();
 }
 
 async function loadCustomers() {
@@ -987,19 +1011,20 @@ async function loadCustomers() {
 
 async function saveCustomer() {
     const name = document.getElementById("customerName").value.trim();
-    const email = document.getElementById("customerEmail").value.trim();
+    const email = document.getElementById("customerEmail").value.trim().toLowerCase();
     const phoneNumber = document.getElementById("customerPhone").value.trim();
+    const password = document.getElementById("customerPassword").value.trim();
 
-    if (!name) {
-        alert("Bitte Kundenname eingeben.");
+    if (!name || !email || !password) {
+        alert("Bitte Name, Email und Passwort eingeben.");
         return;
     }
 
     const { error } = await supabaseClient
         .from("customers")
         .insert({
-            name: name,
-            email: email,
+            name,
+            email,
             phone_number: phoneNumber,
             membership_status: "active"
         });
@@ -1010,12 +1035,30 @@ async function saveCustomer() {
         return;
     }
 
+    const { error: userError } = await supabaseClient
+        .from("users")
+        .update({
+            password_hash: password,
+            role: "customer",
+            name: name
+        })
+        .eq("email", email);
+
+    if (userError) {
+        console.log("User password update error:", userError);
+        alert("Kunde gespeichert, aber Passwort konnte nicht gesetzt werden.");
+        return;
+    }
+
     await createNotification(`Kunde ${name} wurde hinzugefügt.`, "Kunde");
 
     alert("Kunde gespeichert!");
+
     document.getElementById("customerName").value = "";
     document.getElementById("customerEmail").value = "";
     document.getElementById("customerPhone").value = "";
+    document.getElementById("customerPassword").value = "";
+
     loadCustomers();
     loadNotifications();
 }
