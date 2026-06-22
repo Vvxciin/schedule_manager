@@ -94,6 +94,43 @@
     <p>Version 1.0.0 | © 2026 Fit & Aktiv</p>
 </div>
 
+
+<div class="modal" id="courseEditModal">
+    <div class="modal-content">
+        <h2>Kurs bearbeiten</h2>
+
+        <label>Kurs</label>
+        <select id="editCourseTitle">
+            <option value="Yoga">Yoga</option>
+            <option value="Pilates">Pilates</option>
+            <option value="Spinning">Spinning</option>
+            <option value="Krafttraining">Krafttraining</option>
+            <option value="Functional Fit">Functional Fit</option>
+        </select>
+
+        <label>Trainer</label>
+        <select id="editCourseTrainer"></select>
+
+        <label>Raum</label>
+        <select id="editCourseRoom"></select>
+
+        <label>Datum</label>
+        <input id="editCourseDate" type="date">
+
+        <label>Startzeit</label>
+        <input id="editCourseStartTime" type="time">
+
+        <label>Status</label>
+        <select id="editCourseStatus">
+            <option value="scheduled">scheduled</option>
+            <option value="cancelled">cancelled</option>
+        </select>
+
+        <button id="saveEditCourseBtn">Speichern</button>
+        <button id="deleteEditCourseBtn" class="delete-btn">Kurs absagen</button>
+        <button id="closeEditCourseBtn">Schließen</button>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="Wochenplan.js"></script>
 </body>
