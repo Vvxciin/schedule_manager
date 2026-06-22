@@ -204,10 +204,10 @@ async function loadDashboardInfo() {
 }
 
 async function loadNotifications() {
-    const { data, error, count } = await supabaseClient
+    const { data, error } = await supabaseClient
         .from("notifications")
-        .select("*", { count: "exact" })
-        .or(`user_id.eq.${CURRENT_TRAINER_ID},recipient_id.eq.${CURRENT_TRAINER_ID}`)
+        .select("*")
+        .eq("user_id", CURRENT_TRAINER_ID)
         .order("created_at", { ascending: false })
         .limit(5);
 
@@ -217,11 +217,12 @@ async function loadNotifications() {
     if (error) {
         console.log("Notifications error:", error);
         unreadElement.innerText = "0";
-        listElement.innerHTML = "<p>Keine Benachrichtigungen.</p>";
+        listElement.innerHTML = "<p>Fehler beim Laden der Benachrichtigungen.</p>";
         return;
     }
 
-    unreadElement.innerText = count || 0;
+    const unreadCount = (data || []).filter(n => n.is_read === false).length;
+    unreadElement.innerText = unreadCount;
 
     if (!data || data.length === 0) {
         listElement.innerHTML = "<p>Keine Benachrichtigungen.</p>";
@@ -231,14 +232,9 @@ async function loadNotifications() {
     listElement.innerHTML = "";
 
     data.forEach(notification => {
-        const message =
-            notification.message ||
-            notification.title ||
-            "Benachrichtigung";
-
         listElement.innerHTML += `
             <div class="notification-item">
-                ${message}
+                ${notification.message}
             </div>
         `;
     });
