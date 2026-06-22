@@ -169,20 +169,59 @@ function renderCourses(hasMore) {
 
         const isFull = course.current_participants >= course.max_participants;
 
-        return `
-            <div class="course-card">
-                <h3>${course.title}</h3>
-                <p><b>Zeit:</b> ${start} - ${end}</p>
-                <p><b>Trainer:</b> ${course.trainers?.name || "-"}</p>
-                <p><b>Studio:</b> ${course.rooms?.branches?.name || "-"}</p>
-                <p><b>Raum:</b> ${course.rooms?.name || "-"}</p>
-                <p><b>Teilnehmer:</b> ${course.current_participants}/${course.max_participants}</p>
+        const percentage = Math.min(
+    100,
+    Math.round(
+        (course.current_participants / course.max_participants) * 100
+    )
+);
 
-                <button onclick="bookCourse('${course.id}')" ${isFull ? "disabled" : ""}>
-                    ${isFull ? "Ausgebucht" : "Buchen"}
-                </button>
+return `
+    <div class="course-row">
+        <div class="course-info">
+            <h3 class="course-title">${course.title}</h3>
+
+            <p class="course-meta">
+                ${start} - ${end}
+                · ${course.trainers?.name || "-"}
+                · ${course.rooms?.name || "-"},
+                ${course.rooms?.branches?.name || "-"}
+            </p>
+
+            <div class="course-capacity-line">
+                <div class="capacity-bar">
+                    <span
+                        class="capacity-bar-fill ${
+                            isFull ? "fill-red" : "fill-green"
+                        }"
+                        style="width:${percentage}%"
+                    ></span>
+                </div>
+
+                <span class="capacity-text">
+                    ${course.current_participants}/${course.max_participants}
+                    Plätze belegt
+                </span>
+
+                <span class="course-badge ${
+                    isFull ? "badge-red" : "badge-green"
+                }">
+                    ${isFull ? "Ausgebucht" : "Verfügbar"}
+                </span>
             </div>
-        `;
+        </div>
+
+        <div class="course-action">
+            <button
+                class="course-book-btn"
+                onclick="bookCourse('${course.id}')"
+                ${isFull ? "disabled" : ""}
+            >
+                ${isFull ? "Ausgebucht" : "Buchen"}
+            </button>
+        </div>
+    </div>
+`;
     }).join("");
 
     coursesList.innerHTML = html + (hasMore ? `
