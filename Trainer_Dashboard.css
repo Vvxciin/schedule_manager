@@ -188,6 +188,10 @@
     font-family: sans-serif;
 }
 
+.navbar-menu a:hover {
+    font-weight: bold;
+}
+
 .navbar-right {
     position: relative;
 }
