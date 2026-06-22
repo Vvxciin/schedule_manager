@@ -13,14 +13,54 @@ if (!currentUser) {
     throw new Error("Not logged in");
 }
 
+/*
 if (currentUser.role !== "admin") {
     alert("Diese Seite ist nur für Admins.");
     window.location.href = "login.html";
     throw new Error("Not admin");
 }
+*/
+//----------------
+const IS_ADMIN = currentUser.role === "admin";
+const IS_TRAINER = currentUser.role === "trainer";
+
+if (!IS_ADMIN && !IS_TRAINER) {
+    alert("Diese Seite ist nur für Admin oder Trainer.");
+    window.location.href = "login.html";
+    throw new Error("No access");
+}
+//-----------------
+let CURRENT_TRAINER_ID = null;
+
+
+
+
+
 
 let allCourses = [];
 let allTrainers = [];
+
+//--------------
+async function getCurrentTrainerId() {
+    if (IS_ADMIN) {
+        return null;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("trainers")
+        .select("id")
+        .eq("email", currentUser.email)
+        .single();
+
+    if (error || !data) {
+        alert("Trainer wurde nicht gefunden.");
+        window.location.href = "Trainer_Dashboard.html";
+        throw new Error("Trainer not found");
+    }
+
+    return data.id;
+}
+//--------------
 
 function hoursBetween(start, end) {
     return (new Date(end) - new Date(start)) / (1000 * 60 * 60);
@@ -141,6 +181,13 @@ async function loadTrainers() {
     }
 
     allTrainers = data || [];
+
+    //-------
+    if (IS_TRAINER) {
+        document.getElementById("trainerSelect").style.display = "none";
+        return;
+    }
+    //--------
 
     const trainerSelect = document.getElementById("trainerSelect");
     trainerSelect.innerHTML = `<option value="">Trainer auswählen...</option>`;
@@ -515,15 +562,37 @@ function renderMyCourses(courses) {
     });
 }
 
-document.getElementById("trainerSelect").onchange = event => {
-    renderForTrainer(event.target.value);
-};
+//document.getElementById("trainerSelect").onchange = event => {
+    //renderForTrainer(event.target.value);
+//-----------
+if (IS_ADMIN) {
+    document.getElementById("trainerSelect").onchange = event => {
+        renderForTrainer(event.target.value);
+    };
+}
+//-----------
 
+/*
 async function init() {
     renderEmptyState();
 
     await loadTrainers();
     await loadCourses();
 }
+    */
+//------
+async function init() {
+    renderEmptyState();
+
+    CURRENT_TRAINER_ID = await getCurrentTrainerId();
+
+    await loadTrainers();
+    await loadCourses();
+
+    if (IS_TRAINER) {
+        renderForTrainer(CURRENT_TRAINER_ID);
+    }
+} 
+//-------------- 
 
 init();
