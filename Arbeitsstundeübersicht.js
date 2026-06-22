@@ -7,11 +7,26 @@ console.log("Supabase connected!");
 
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
+
+
 if (!currentUser) {
     alert("Bitte zuerst einloggen.");
     window.location.href = "login.html";
     throw new Error("Not logged in");
 }
+
+//--------for navbar
+const navbarLinks = document.getElementById("navbarLinks");
+
+if (currentUser.role === "trainer") {
+    navbarLinks.innerHTML = `
+        <a href="Trainer_Dashboard.html">Dashboard</a>
+        <a href="Arbeitsstundenübersicht.html">Arbeitsstundenübersicht</a>
+        <a href="Verfügbarkeitverwaltung.html">Verfügbarkeitverwaltung</a>
+    `;
+}
+
+
 
 /*
 if (currentUser.role !== "admin") {
