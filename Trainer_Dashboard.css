@@ -221,3 +221,15 @@
     background: white;
     cursor: pointer;
 }
+
+.notifications-list {
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.notification-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+    font-family: sans-serif;
+    font-size: 15px;
+}
