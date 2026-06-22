@@ -32,21 +32,31 @@
 
 <!-- Search Bar -->
 <div class="search-container">
-    <input type="text" placeholder="Kursname suchen..." class="search-input">
+    <input 
+        type="text" 
+        id="courseSearchInput"
+        placeholder="Kursname, Trainer, Raum suchen..." 
+        class="search-input"
+    >
 
-    <select class="filter-select">
-        <option>Alle Studios</option>
+    <select id="studioFilter" class="filter-select">
+        <option value="">Alle Studios</option>
     </select>
 
-    <select class="filter-select">
-        <option>Alle Tage</option>
+    <input 
+    type="date" 
+    id="dayFilter" 
+    class="filter-select date-filter">
+
+    <select id="timeFilter" class="filter-select">
+        <option value="">Alle Zeiten</option>
+        <option value="morning">Vormittag</option>
+        <option value="afternoon">Nachmittag</option>
+        <option value="evening">Abend</option>
     </select>
 
-    <select class="filter-select">
-        <option>Alle Zeiten</option>
-    </select>
-
-    <button class="filter-button">Filtern</button>
+    <button id="filterButton" class="filter-button">Filtern</button>
+    <button id="resetFilterButton" class="filter-button reset-button">Reset</button>
 </div>
 
 
