@@ -385,7 +385,14 @@
 }
 
 .reset-button {
-    background-color: #666;
+    background-color: white;
+    color: #333;
+    border: 2px solid #333;
+}
+
+.reset-button:hover {
+    background-color: #333;
+    color: white;
 }
 
 .date-filter {
