@@ -48,6 +48,65 @@ function setupProfileBox() {
 }
 
 setupProfileBox();
+setupNotificationBell();
+
+function setupNotificationBell() {
+    const bellBtn = document.getElementById("notificationBtn");
+    const dropdown = document.getElementById("notificationDropdown");
+    const list = document.getElementById("notificationDropdownList");
+
+    if (!bellBtn || !dropdown || !list) return;
+
+    bellBtn.onclick = async (event) => {
+        event.stopPropagation();
+        dropdown.classList.toggle("show");
+
+        if (!dropdown.classList.contains("show")) return;
+
+        const { data, error } = await supabaseClient
+            .from("notifications")
+            .select("message, type, created_at")
+            .eq("user_id", CURRENT_CUSTOMER_ID)
+            .order("created_at", { ascending: false })
+            .limit(10);
+
+        if (error) {
+            console.log("Notification dropdown error:", error);
+            list.innerHTML = "<p>Fehler beim Laden.</p>";
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            list.innerHTML = "<p>Keine Benachrichtigungen.</p>";
+            return;
+        }
+
+        list.innerHTML = data.map(notification => {
+            const date = new Date(notification.created_at).toLocaleString("de-DE", {
+                day: "2-digit",
+                month: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+
+            return `
+                <div class="notification-dropdown-item">
+                    <div class="notification-dropdown-type">${notification.type || "Info"}</div>
+                    <div>${notification.message}</div>
+                    <div class="notification-dropdown-date">${date}</div>
+                </div>
+            `;
+        }).join("");
+    };
+
+    document.addEventListener("click", () => {
+        dropdown.classList.remove("show");
+    });
+
+    dropdown.onclick = (event) => {
+        event.stopPropagation();
+    };
+}
 
 
 async function createCustomerNotification(message, type = "Buchung") {
