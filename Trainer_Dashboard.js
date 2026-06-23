@@ -130,6 +130,21 @@ function weekRange() {
     };
 }
 
+function currentWeekStartDateString() {
+    const now = new Date();
+    const day = now.getDay(); // Sunday = 0
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diffToMonday);
+
+    const year = monday.getFullYear();
+    const month = String(monday.getMonth() + 1).padStart(2, "0");
+    const dayOfMonth = String(monday.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${dayOfMonth}`;
+}
+
 function formatTime(value) {
     return new Date(value).toLocaleTimeString("de-DE", {
         hour: "2-digit",
@@ -231,33 +246,27 @@ async function loadDashboardInfo() {
 
     document.getElementById("todayLocations").innerText = locations.size;
 
-    const { data: weekCourses, error: weekError } = await supabaseClient
-        .from("courses")
-        .select("start_time, end_time")
-        .eq("trainer_id", CURRENT_TRAINER_ID)
-        .gte("start_time", week.start)
-        .lt("start_time", week.end);
+    const currentWeekStart = currentWeekStartDateString();
 
-    if (weekError) {
-        console.log("Week courses error:", weekError);
-        return;
-    }
+const { data: weeklyData, error: weeklyError } = await supabaseClient
+    .from("trainer_weekly_worked_hours")
+    .select("worked_hours, contract_hours, remaining_hours, week_start, week_end")
+    .eq("trainer_id", CURRENT_TRAINER_ID)
+    .eq("week_start", currentWeekStart)
+    .maybeSingle();
 
-    let workedHours = 0;
-
-    (weekCourses || []).forEach(course => {
-        const start = new Date(course.start_time);
-        const end = new Date(course.end_time);
-
-        if (!isNaN(start) && !isNaN(end)) {
-            workedHours += (end - start) / (1000 * 60 * 60);
-        }
-    });
-
+if (weeklyError) {
+    console.log("Weekly hours view error:", weeklyError);
+    document.getElementById("weeklyHours").innerText = "0/XX";
+} else if (weeklyData) {
+    document.getElementById("weeklyHours").innerText =
+        `${Number(weeklyData.worked_hours)}/${weeklyData.contract_hours}`;
+} else {
     const maxHours = trainer?.working_hours || "XX";
 
     document.getElementById("weeklyHours").innerText =
-        `${workedHours}/${maxHours}`;
+        `0/${maxHours}`;
+}
 
     await loadNotifications();
 }
