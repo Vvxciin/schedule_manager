@@ -309,6 +309,7 @@ function renderForTrainer(trainerId) {
     const contractHours = Number(trainer.working_hours) || 0;
 
     const trainerCourses = allCourses.filter(course => course.trainer_id === trainerId);
+    
     const trainerWeeklyRows = allWeeklyHours.filter(row => row.trainer_id === trainerId);
 
     const currentMonday = getMonday(new Date());
