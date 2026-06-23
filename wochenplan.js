@@ -456,13 +456,13 @@ async function openCourseEditModal(course) {
     document.getElementById("editCourseTrainer").value = course.trainer_id || "";
     document.getElementById("editCourseRoom").value = course.room_id || "";
 
-    const startDate = new Date(course.start_time);
+    const startText = String(course.start_time);
 
     document.getElementById("editCourseDate").value =
-        course.start_time.slice(0, 10);
+    startText.slice(0, 10);
 
     document.getElementById("editCourseStartTime").value =
-        startDate.toTimeString().slice(0, 5);
+    startText.slice(11, 16);
 
     document.getElementById("editCourseStatus").value =
         course.status || "scheduled";
