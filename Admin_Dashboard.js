@@ -1310,36 +1310,58 @@ document.getElementById("refreshNotificationsBtn").onclick = loadNotifications;
 
 
 // for info part
+async function getExactCount(tableName, filterCallback = null) {
+    let query = supabaseClient
+        .from(tableName)
+        .select("*", {
+            count: "exact",
+            head: true
+        });
+
+    if (filterCallback) {
+        query = filterCallback(query);
+    }
+
+    const { count, error } = await query;
+
+    if (error) {
+        console.log(`Count error for ${tableName}:`, error);
+        return 0;
+    }
+
+    return count || 0;
+}
+
 async function loadDashboardNumbers() {
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateString(new Date());
 
-    const { data: trainers } = await supabaseClient
-        .from("trainers")
-        .select("id");
-
-    const { data: sick } = await supabaseClient
-        .from("absences")
-        .select("id")
-        .lte("start_date", today)
-        .gte("end_date", today);
-
-    const { data: customers } = await supabaseClient
-        .from("customers")
-        .select("id");
-    
     const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
+    weekAgo.setDate(weekAgo.getDate() - 7);
 
-    const { data: newCustomers } = await supabaseClient
-        .from("customers")
-        .select("id")
-        .gte("created_at", weekAgo.toISOString());
+    const trainerCount = await getExactCount("trainers");
 
-    const { data: todayCourses } = await supabaseClient
+    const sickCount = await getExactCount("absences", query =>
+        query
+            .lte("start_date", today)
+            .gte("end_date", today)
+    );
+
+    const customerCount = await getExactCount("customers");
+
+    const newCustomerCount = await getExactCount("customers", query =>
+        query.gte("created_at", weekAgo.toISOString())
+    );
+
+    const todayCourseCount = await getExactCount("courses", query =>
+        query
+            .gte("start_time", today + "T00:00:00")
+            .lt("start_time", getLocalDateString(addDays(new Date(), 1)) + "T00:00:00")
+    );
+
+    const { data: todayCourses, error: todayCoursesError } = await supabaseClient
         .from("courses")
         .select(`
             id,
-            start_time,
             rooms (
                 branches (
                     id
@@ -1347,28 +1369,33 @@ async function loadDashboardNumbers() {
             )
         `)
         .gte("start_time", today + "T00:00:00")
-        .lte("start_time", today + "T23:59:59");
+        .lt("start_time", getLocalDateString(addDays(new Date(), 1)) + "T00:00:00");
+
+    if (todayCoursesError) {
+        console.log("Today branches count error:", todayCoursesError);
+    }
 
     document.getElementById("active-trainers-count").innerText =
-        trainers ? trainers.length : 0;
+        trainerCount;
 
     document.getElementById("sick-trainers-count").innerText =
-        `${sick ? sick.length : 0} krank gemeldet`;
+        `${sickCount} krank gemeldet`;
 
     document.getElementById("customers-count").innerText =
-        customers ? customers.length : 0;
+        customerCount;
 
     document.getElementById("today-courses-count").innerText =
-        todayCourses ? todayCourses.length : 0;
+        todayCourseCount;
 
     document.getElementById("new-customers-week").innerText =
-    `+${newCustomers ? newCustomers.length : 0} diese Woche`;
+        `+${newCustomerCount} diese Woche`;
 
     const branchIds = new Set();
 
     if (todayCourses) {
         todayCourses.forEach(course => {
             const branchId = course.rooms?.branches?.id;
+
             if (branchId) {
                 branchIds.add(branchId);
             }
