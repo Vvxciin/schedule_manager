@@ -655,30 +655,26 @@ async function hasTrainerConflict(trainerId, startTime, endTime, ignoredCourseId
 }
 
 async function hasRoomConflict(roomId, startTime, endTime, ignoredCourseId = null) {
-    const { data, error } = await supabaseClient
+    let query = supabaseClient
         .from("courses")
-        .select("id, start_time, end_time")
+        .select("id, start_time, end_time, status")
         .eq("room_id", roomId)
-        .neq("status", "canceled");
+        .eq("status", "scheduled")
+        .lt("start_time", endTime)
+        .gt("end_time", startTime);
+
+    if (ignoredCourseId) {
+        query = query.neq("id", ignoredCourseId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
         console.log("Room conflict check error:", error);
         return true;
     }
 
-    const newStart = new Date(startTime);
-    const newEnd = new Date(endTime);
-
-    return data.some(course => {
-        if (ignoredCourseId && course.id === ignoredCourseId) {
-            return false;
-        }
-
-        const existingStart = new Date(course.start_time);
-        const existingEnd = new Date(course.end_time);
-
-        return timesOverlap(newStart, newEnd, existingStart, existingEnd);
-    });
+    return data && data.length > 0;
 }
 
 
