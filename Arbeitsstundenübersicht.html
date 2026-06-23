@@ -28,12 +28,11 @@
     </div>
 
     <img src="images/user.png" class="navbar-icons" id="profileBtn">
-
-        <div id="profileBox" class="profile-box">
-            <p id="profileName"></p>
-            <p id="profileRole"></p>
-            <button id="logoutBtn">Logout</button>
-        </div>
+    <div id="profileBox" class="profile-box">
+        <p id="profileName"></p>
+        <p id="profileRole"></p>
+        <button id="logoutBtn">Logout</button>
+    </div>
     </div>
 </nav>
 
@@ -110,10 +109,12 @@
     </select>
 </div>
 
-                <div class="month-buttons">
-                    <button>← April</button>
-                    <button>Juni →</button>
+                <div class="month-controls">
+                    <button id="previousMonthBtn">←</button>
+                    <span id="selectedMonthLabel">Aktueller Monat</span>
+                    <button id="nextMonthBtn">→</button>
                 </div>
+
             </div>
 
 

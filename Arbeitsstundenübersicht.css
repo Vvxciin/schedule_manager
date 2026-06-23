@@ -49,6 +49,40 @@
     object-fit: contain;
     margin-left: 20px;
 }
+.navbar-right {
+    position: relative;
+}
+
+.profile-box {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+
+    width: 220px;
+    background: white;
+    border: 1px solid black;
+    border-radius: 12px;
+    padding: 15px;
+
+    z-index: 999;
+    font-family: sans-serif;
+}
+
+.profile-box p {
+    margin: 5px 0;
+}
+
+.profile-box button {
+    margin-top: 10px;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid black;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+}
+
 
 
 /*-- information */
@@ -357,7 +391,7 @@
     border: 1px solid black;
     border-radius: 20px;
 
-    height: 350px;
+    height: 520px;
     overflow-y: auto;
 
     box-sizing: border-box;
@@ -512,5 +546,39 @@
 
 #notificationBtn {
     cursor: pointer;
+}
+
+
+
+
+.month-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    margin-right: 40px;
+    margin-top: 20px;
+}
+
+.month-controls button {
+    width: 42px;
+    height: 38px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.month-controls button:hover {
+    background: #f2f2f2;
+}
+
+#selectedMonthLabel {
+    min-width: 130px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
 }
 

@@ -47,6 +47,8 @@ if (!IS_ADMIN && !IS_TRAINER) {
 //-----------------
 let CURRENT_TRAINER_ID = null;
 
+let selectedMonthDate = new Date();
+
 
 
 
@@ -114,11 +116,9 @@ function isInCurrentWeek(date) {
     return date >= monday && date <= sunday;
 }
 
-function isInCurrentMonth(date) {
-    const now = new Date();
-
-    return date.getMonth() === now.getMonth() &&
-        date.getFullYear() === now.getFullYear();
+function isInSelectedMonth(date) {
+    return date.getMonth() === selectedMonthDate.getMonth() &&
+        date.getFullYear() === selectedMonthDate.getFullYear();
 }
 
 function formatHours(value) {
@@ -290,8 +290,8 @@ function renderForTrainer(trainerId) {
         return isInCurrentWeek(new Date(course.start_time));
     });
 
-    const currentMonthCourses = trainerCourses.filter(course => {
-        return isInCurrentMonth(new Date(course.start_time));
+    const selectedMonthCourses = trainerCourses.filter(course => {
+    return isInSelectedMonth(new Date(course.start_time));
     });
 
     const todayCourses = trainerCourses.filter(course => {
@@ -299,13 +299,13 @@ function renderForTrainer(trainerId) {
     });
 
     const weekTotals = calculateTotals(currentWeekCourses);
-    const monthTotals = calculateTotals(currentMonthCourses);
+    const monthTotals = calculateTotals(selectedMonthCourses);
     const todayTotals = calculateTotals(todayCourses);
 
     renderInfoBoxes(trainer, weekTotals, monthTotals, todayTotals, contractHours);
     renderDetailsTable(weekTotals.rows);
-    renderBarChart(trainerCourses, contractHours);
-    renderMonthList(trainerCourses, contractHours);
+    renderBarChart(selectedMonthCourses, contractHours);
+    renderMonthList(selectedMonthCourses, contractHours);
     renderMyCourses(currentWeekCourses);
 }
 
@@ -328,7 +328,7 @@ function renderInfoBoxes(trainer, weekTotals, monthTotals, todayTotals, contract
         `${formatHours(monthTotals.totalHours)} <span>h</span>`;
 
     document.getElementById("monthInfo").innerText =
-        `Kurszeit + Fahrtzeit im aktuellen Monat`;
+    `Kurszeit + Fahrtzeit im ausgewählten Monat`;
 
     document.getElementById("monthProgress").style.width =
         `${Math.min(monthTotals.totalHours * 2, 100)}%`;
@@ -596,13 +596,58 @@ async function init() {
 }
     */
 //------
+
+
+
+function setupMonthButtons() {
+    const previousMonthBtn = document.getElementById("previousMonthBtn");
+    const nextMonthBtn = document.getElementById("nextMonthBtn");
+    const selectedMonthLabel = document.getElementById("selectedMonthLabel");
+
+    if (!previousMonthBtn || !nextMonthBtn || !selectedMonthLabel) return;
+
+    function updateMonthLabel() {
+        selectedMonthLabel.innerText = selectedMonthDate.toLocaleString("de-DE", {
+            month: "long",
+            year: "numeric"
+        });
+    }
+
+    function rerenderSelectedTrainer() {
+        updateMonthLabel();
+
+        if (IS_TRAINER) {
+            renderForTrainer(CURRENT_TRAINER_ID);
+        } else {
+            const trainerSelect = document.getElementById("trainerSelect");
+            renderForTrainer(trainerSelect.value);
+        }
+    }
+
+    updateMonthLabel();
+
+    previousMonthBtn.onclick = () => {
+        selectedMonthDate.setMonth(selectedMonthDate.getMonth() - 1);
+        rerenderSelectedTrainer();
+    };
+
+    nextMonthBtn.onclick = () => {
+        selectedMonthDate.setMonth(selectedMonthDate.getMonth() + 1);
+        rerenderSelectedTrainer();
+    };
+}
+
+
+
 async function init() {
+
     renderEmptyState();
 
     CURRENT_TRAINER_ID = await getCurrentTrainerId();
 
     await loadTrainers();
     await loadCourses();
+    setupMonthButtons();
 
     if (IS_TRAINER) {
         renderForTrainer(CURRENT_TRAINER_ID);
@@ -669,6 +714,32 @@ function setupNotificationBell() {
     };
 }
 
+//------------
+/*for long out */
+function setupProfileBox() {
+    const profileBtn = document.getElementById("profileBtn");
+    const profileBox = document.getElementById("profileBox");
+    const profileName = document.getElementById("profileName");
+    const profileRole = document.getElementById("profileRole");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    profileName.innerText = `Name: ${currentUser.name}`;
+    profileRole.innerText = `Rolle: ${currentUser.role}`;
+
+    profileBtn.onclick = () => {
+        profileBox.style.display =
+            profileBox.style.display === "block"
+                ? "none"
+                : "block";
+    };
+
+    logoutBtn.onclick = () => {
+        localStorage.removeItem("currentUser");
+        window.location.href = "login.html";
+    };
+}
+setupProfileBox();
+//---------------------------
 setupNotificationBell();
 
 init();

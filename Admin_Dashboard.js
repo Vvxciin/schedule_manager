@@ -242,6 +242,7 @@ function openRoomEditModal(room) {
 function openCourseEditModal(course) {
 
     editingCourseId = course.id;
+    document.getElementById("courseModalTitle").innerText = "Kurs bearbeiten";
 
     document.getElementById("courseTitle").value =
         course.title;
@@ -252,14 +253,19 @@ function openCourseEditModal(course) {
     document.getElementById("courseRoom").value =
         course.room_id;
 
-    const startDate =
-        new Date(course.start_time);
+
+
+
 
     document.getElementById("courseDate").value =
-        startDate.toISOString().split("T")[0];
+    course.start_time.slice(0, 10);
 
     document.getElementById("courseStartTime").value =
-        startDate.toTimeString().slice(0,5);
+    course.start_time.slice(11, 16);
+
+
+
+
 
     openModal("courseModal");
 }
@@ -305,7 +311,15 @@ document.getElementById("openCustomerModal").onclick = () => {
     openModal("customerModal");
     loadCustomers();
 };
-document.getElementById("openCourseModal").onclick = () => openModal("courseModal");
+document.getElementById("openCourseModal").onclick = () => {
+
+    editingCourseId = null;
+
+    document.getElementById("courseModalTitle").innerText =
+        "Kurs erstellen";
+
+    openModal("courseModal");
+};
 
 document.getElementById("openRoomModal").onclick = () => {
     openModal("roomModal");
