@@ -1,4 +1,3 @@
-/* Navbar-how to run it? */
 .navbar {
     top: 15px;
     left: 0;
@@ -15,9 +14,12 @@
 
 
 .navbar-logo {
-    color: black;
-    font-weight: bold;
-    font-size: 30px;
+    font-family: Georgia, "Times New Roman", serif ;
+    font-weight: 700 ;
+    font-size: clamp(28px, 5vw, 34px) ;
+    line-height: 1.05;
+    white-space: nowrap ;
+    letter-spacing: -0.5px;
 }
 
 .navbar-text{
@@ -287,4 +289,333 @@
 
 #notificationBtn {
     cursor: pointer;
+}
+
+/* ============================= */
+/* ----------------------------- */
+/* ============================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 15px;
+    background-color: #f3f3f3;
+    font-family: sans-serif;
+}
+
+/* Navbar */
+.navbar {
+    width: 100%;
+    min-height: 90px;
+    height: auto;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+    padding: 20px clamp(18px, 4vw, 45px);
+
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+
+.navbar-logo {
+    font-size: clamp(24px, 3vw, 30px);
+    white-space: nowrap;
+}
+
+.navbar-menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(14px, 3vw, 40px);
+    align-items: center;
+}
+
+.navbar-menu a {
+    font-size: clamp(16px, 2vw, 20px);
+    text-decoration: none;
+    color: black;
+}
+
+.navbar-menu a:hover {
+    font-weight: bold;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+}
+
+.navbar-icons {
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+    margin-left: 0;
+}
+
+/* Info cards */
+.info-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.info {
+    width: 100%;
+    min-height: 150px;
+    height: auto;
+
+    display: flex;
+    align-items: center;
+
+    gap: clamp(18px, 3vw, 35px);
+    padding: clamp(20px, 3vw, 45px);
+
+    border: 1px solid black;
+    border-radius: 20px;
+    background-color: white;
+}
+
+.info-text {
+    font-size: clamp(16px, 2vw, 20px);
+}
+
+.info-icons {
+    width: clamp(42px, 6vw, 55px);
+    height: clamp(42px, 6vw, 55px);
+}
+
+/* Tables area */
+.table-contaners {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.table {
+    flex: 1 1 420px;
+
+    min-width: 300px;
+    min-height: 330px;
+    height: auto;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 15px;
+    padding: clamp(18px, 3vw, 45px);
+
+    border: 1px solid black;
+    border-radius: 20px;
+    background-color: white;
+
+    position: relative;
+}
+
+.table-text {
+    font-size: clamp(18px, 2vw, 20px);
+    margin: 0;
+}
+
+/* Inner table box */
+.inner-table {
+    width: 100%;
+    max-height: 240px;
+    height: auto;
+
+    border: 1px solid black;
+    border-radius: 20px;
+
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+/* Actual table */
+.schedule-table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+}
+
+.schedule-table th,
+.schedule-table td {
+    border-bottom: 1px solid black;
+
+    padding: 10px 14px;
+    text-align: left;
+
+    white-space: nowrap;
+}
+
+/* Button */
+.table-button {
+    position: static;
+
+    width: auto;
+    min-width: 130px;
+    height: 40px;
+
+    align-self: flex-end;
+
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+
+    cursor: pointer;
+}
+
+/* Notifications */
+.notifications-list {
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.notification-item {
+    font-size: 15px;
+}
+
+/* Dropdowns */
+.profile-box {
+    right: 0;
+    top: 50px;
+}
+
+.notification-dropdown {
+    right: 0;
+    top: 50px;
+
+    width: min(340px, calc(100vw - 40px));
+    max-height: 420px;
+
+    overflow-y: auto;
+}
+
+/* Footer */
+.end {
+    margin-top: 20px;
+    width: 100%;
+    min-height: 70px;
+    height: auto;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+    padding: 18px clamp(20px, 4vw, 50px);
+
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: white;
+
+    position: static;
+    color: gray;
+}
+
+.end p {
+    margin: 0;
+}
+
+.end p:last-child {
+    position: static;
+    transform: none;
+}
+
+@media (max-width: 900px) {
+    body {
+        padding: 10px;
+    }
+
+    .navbar {
+        align-items: flex-start;
+    }
+
+    .navbar-menu {
+        width: 100%;
+        gap: 12px;
+    }
+
+    .navbar-right {
+        margin-left: auto;
+    }
+
+    .table {
+        flex: 1 1 100%;
+    }
+
+    .inner-table {
+        max-height: 300px;
+    }
+
+    .table-contaners .table:nth-child(2) {
+        display: none;
+    
+    }
+
+}
+
+@media (max-width: 600px) {
+    .navbar-logo {
+        width: 100%;
+    }
+
+    .navbar-menu {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .navbar-right {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .info {
+        padding: 18px;
+    }
+
+    .info-icons {
+        width: 42px;
+        height: 42px;
+    }
+
+    .table {
+        min-width: 0;
+        padding: 18px;
+    }
+
+    .schedule-table {
+        min-width: 480px;
+    }
+
+    .end {
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+@media (max-width: 420px) {
+    .schedule-table {
+        min-width: 430px;
+    }
+
+    .info {
+        gap: 14px;
+    }
+
+    .info-text {
+        font-size: 15px;
+    }
 }

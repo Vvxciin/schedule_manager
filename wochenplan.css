@@ -14,9 +14,12 @@
 
 
 .navbar-logo {
-    color: black;
-    font-weight: bold;
-    font-size: 30px;
+    font-family: Georgia, "Times New Roman", serif ;
+    font-weight: 700 ;
+    font-size: clamp(28px, 5vw, 34px) ;
+    line-height: 1.05;
+    white-space: nowrap ;
+    letter-spacing: -0.5px;
 }
 .navbar-menu {
     display: flex;
@@ -162,8 +165,8 @@
 }
 
 .generate-btn {
-    background-color: #e8fff0 !important;
-    border: 1px solid #0a8f3c !important;
+    background-color: #e8fff0 ;
+    border: 1px solid #0a8f3c ;
     font-weight: bold;
 }
 
@@ -188,8 +191,8 @@
 }
 .course-card.cancelled,
 .course-card.canceled {
-    background-color: #ffdddd !important;
-    border-left-color: #cc0000 !important;
+    background-color: #ffdddd ;
+    border-left-color: #cc0000 ;
     color: #7a0000;
     opacity: 0.9;
 }
@@ -358,8 +361,8 @@
 }
 
 .delete-btn {
-    background-color: #ffdddd !important;
-    border: 1px solid #cc0000 !important;
+    background-color: #ffdddd ;
+    border: 1px solid #cc0000 ;
     color: #990000;
 }
 
@@ -540,4 +543,426 @@
 
 #notificationBtn {
     cursor: pointer;
+}
+
+/* ============================= */
+/* ----------------------------- */
+/* ============================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 15px;
+    background-color: #f3f3f3;
+    font-family: sans-serif;
+}
+
+/* Navbar */
+.navbar {
+    width: 100%;
+    min-height: 90px;
+    height: auto;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+    padding: 20px clamp(18px, 4vw, 45px);
+
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+
+.navbar-logo {
+    font-size: clamp(24px, 3vw, 30px);
+    white-space: nowrap;
+}
+
+.navbar-menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(14px, 3vw, 40px);
+    align-items: center;
+}
+
+.navbar-menu a {
+    font-size: clamp(16px, 2vw, 20px);
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+}
+
+.navbar-icons {
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+    margin-left: 0;
+}
+
+/* Page Header */
+.page-header {
+    margin-top: 10px;
+    padding: clamp(20px, 4vw, 45px);
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+
+.page-header h1 {
+    font-size: clamp(24px, 4vw, 30px);
+}
+
+.page-header p {
+    font-size: clamp(15px, 2vw, 18px);
+}
+
+.week-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.week-actions button,
+.control-buttons button {
+    min-height: 40px;
+    padding: 10px 15px;
+    white-space: nowrap;
+}
+
+/* Controls */
+.control-card {
+    margin-top: 10px;
+    padding: clamp(20px, 4vw, 45px);
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+
+    gap: 20px;
+
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+
+.control-group {
+    flex: 1 1 220px;
+}
+
+.control-group input,
+.control-group select {
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+}
+
+.control-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Status */
+.status-card {
+    margin-top: 10px;
+    padding: 14px clamp(18px, 3vw, 25px);
+}
+
+/* Week Title */
+.week-title-card {
+    margin-top: 10px;
+    padding: 20px clamp(20px, 4vw, 45px);
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 12px;
+
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+
+.week-title-card h2 {
+    font-size: clamp(20px, 3vw, 26px);
+}
+
+/* Schedule Wrapper */
+.schedule-wrapper {
+    margin-top: 10px;
+    padding: clamp(10px, 2vw, 20px);
+
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+
+/* Weekly Table */
+.weekly-schedule-table {
+    width: 100%;
+    min-width: 1100px;
+    border-collapse: collapse;
+    font-family: sans-serif;
+}
+
+.weekly-schedule-table th {
+    padding: 12px 8px;
+    font-size: clamp(13px, 1.5vw, 15px);
+}
+
+.weekly-schedule-table td {
+    vertical-align: top;
+}
+
+.day-cell {
+    width: 65px;
+    font-size: clamp(15px, 2vw, 18px);
+}
+
+.time-cell {
+    width: 120px;
+    min-height: 120px;
+    height: auto;
+    padding: 6px;
+}
+
+/* Course Cards */
+.course-card {
+    width: 100%;
+    min-height: 70px;
+
+    padding: 8px;
+    margin-bottom: 6px;
+
+    overflow-wrap: break-word;
+    word-break: break-word;
+
+    font-size: 13px;
+}
+
+.course-title {
+    font-size: 14px;
+}
+
+.course-meta,
+.course-status {
+    font-size: 12px;
+}
+
+/* Legend */
+.legend-card {
+    margin-top: 10px;
+    padding: 18px clamp(20px, 4vw, 45px);
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 25px;
+
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+
+.legend-item {
+    white-space: nowrap;
+}
+
+/* Footer */
+.end {
+    margin-top: 10px;
+    width: 100%;
+    min-height: 70px;
+    height: auto;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+    padding: 18px clamp(20px, 4vw, 50px);
+
+    position: static;
+
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: white;
+
+    color: gray;
+}
+
+.end p:last-child {
+    position: static;
+    transform: none;
+}
+
+/* Modals */
+.modal-content {
+    width: min(420px, calc(100vw - 30px));
+    max-height: 85vh;
+    overflow-y: auto;
+
+    margin: 40px auto;
+    padding: clamp(18px, 4vw, 25px);
+}
+
+/* Profile + Notification Dropdown */
+.profile-box {
+    right: 0;
+    top: 50px;
+}
+
+.notification-dropdown {
+    right: 0;
+    top: 50px;
+
+    width: min(340px, calc(100vw - 40px));
+    max-height: 420px;
+
+    overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+
+    
+    body {
+        padding: 10px;
+    }
+
+    .navbar {
+        align-items: flex-start;
+    }
+
+    .navbar-menu {
+        width: 100%;
+        gap: 12px;
+    }
+
+    .navbar-right {
+        margin-left: auto;
+    }
+
+    .page-header,
+    .control-card,
+    .week-title-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .week-actions,
+    .control-buttons {
+        width: 100%;
+    }
+
+    .week-actions button,
+    .control-buttons button {
+        flex: 1 1 180px;
+    }
+
+    .schedule-wrapper {
+        padding: 10px;
+    }
+
+    .weekly-schedule-table {
+        min-width: 950px;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar-logo {
+        width: 100%;
+    }
+
+    .navbar-menu {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .navbar-right {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .page-header,
+    .control-card,
+    .week-title-card,
+    .legend-card {
+        padding: 18px;
+    }
+
+    .week-actions button,
+    .control-buttons button {
+        width: 100%;
+        flex: 1 1 100%;
+    }
+
+    .control-group {
+        width: 100%;
+        flex: 1 1 100%;
+    }
+
+    .weekly-schedule-table {
+        min-width: 850px;
+    }
+
+    .time-cell {
+        width: 110px;
+    }
+
+    .course-card {
+        font-size: 12px;
+    }
+
+    .end {
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+@media (max-width: 420px) {
+    .weekly-schedule-table {
+        min-width: 780px;
+    }
+
+    .day-cell {
+        width: 55px;
+    }
+
+    .time-cell {
+        width: 100px;
+        padding: 5px;
+    }
+
+    .legend-item {
+        width: 100%;
+    }
+
+    .modal-content {
+        margin: 20px auto;
+    }
 }
