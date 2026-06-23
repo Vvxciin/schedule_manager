@@ -293,6 +293,76 @@ function renderEmptyState() {
     document.getElementById("myCoursesBody").innerHTML = "";
 }
 
+
+function refreshCourseDetailSections(trainerId, currentWeekViewRow) {
+    if (!trainerId || !currentWeekViewRow) return;
+
+    supabaseClient
+        .from("courses")
+        .select(`
+            id,
+            title,
+            trainer_id,
+            start_time,
+            end_time,
+            status,
+            rooms (
+                id,
+                name,
+                branch_id,
+                branches (
+                    name
+                )
+            )
+        `)
+        .eq("trainer_id", trainerId)
+        .neq("status", "canceled")
+        .gte("start_time", `${currentWeekViewRow.week_start}T00:00:00+00:00`)
+        .lte("start_time", `${currentWeekViewRow.week_end}T23:59:59+00:00`)
+        .order("start_time", { ascending: true })
+        .then(({ data, error }) => {
+            if (error) {
+                console.log("Direct week courses error:", error);
+                return;
+            }
+
+            console.log("Direct week courses:", data);
+
+            const weekCourses = data || [];
+const weekTotals = calculateTotals(weekCourses);
+
+const todayKey = toLocalDateKey(new Date());
+
+const todayCourses = weekCourses.filter(course => {
+    return String(course.start_time).slice(0, 10) === todayKey;
+});
+
+const todayTotals = calculateTotals(todayCourses);
+
+renderDetailsTable(weekTotals.rows);
+renderMyCourses(weekCourses);
+
+document.getElementById("todayHours").innerHTML =
+    `${formatHours(todayTotals.totalHours)} <span>h</span>`;
+
+if (todayTotals.rows.length === 0) {
+    document.getElementById("todayInfo").innerText = "Keine Kurse heute";
+} else {
+    const firstCourse = todayTotals.rows[0].course;
+    const lastCourse = todayTotals.rows[todayTotals.rows.length - 1].course;
+
+    const start = firstCourse.start_time.slice(11, 16);
+    const end = lastCourse.end_time.slice(11, 16);
+
+    document.getElementById("todayInfo").innerText =
+        `${start} - ${end} geplant`;
+}
+
+document.getElementById("todayProgress").style.width =
+    `${Math.min(todayTotals.totalHours * 12.5, 100)}%`;
+        });
+}
+
 function renderForTrainer(trainerId) {
     if (!trainerId) {
         renderEmptyState();
@@ -351,6 +421,8 @@ function renderForTrainer(trainerId) {
     renderBarChartFromView(selectedMonthWeeklyRows, contractHours);
     renderMonthListFromView(selectedMonthWeeklyRows, contractHours);
     renderMyCourses(currentWeekCourses);
+
+refreshCourseDetailSections(trainerId, currentWeekViewRow);
 }
 
 function renderInfoBoxes(trainer, weekTotals, monthTotals, todayTotals, contractHours) {
