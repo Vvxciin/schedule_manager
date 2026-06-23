@@ -56,6 +56,7 @@ let selectedMonthDate = new Date();
 
 let allCourses = [];
 let allTrainers = [];
+let allWeeklyHours = [];
 
 //--------------
 async function getCurrentTrainerId() {
@@ -96,6 +97,14 @@ function getMonday(date) {
     copiedDate.setHours(0, 0, 0, 0);
 
     return copiedDate;
+}
+
+function toLocalDateKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
 }
 
 function getSunday(date) {
@@ -247,6 +256,21 @@ async function loadCourses() {
     allCourses = data || [];
 }
 
+async function loadWeeklyHours() {
+    const { data, error } = await supabaseClient
+        .from("trainer_weekly_worked_hours")
+        .select("*")
+        .order("week_start", { ascending: true });
+
+    if (error) {
+        console.log("Weekly hours load error:", error);
+        alert("Arbeitsstunden konnten nicht geladen werden.");
+        return;
+    }
+
+    allWeeklyHours = data || [];
+}
+
 function renderEmptyState() {
     document.getElementById("weekHours").innerHTML = `0 <span>/ 0 h</span>`;
     document.getElementById("monthHours").innerHTML = `0 <span>h</span>`;
@@ -285,27 +309,46 @@ function renderForTrainer(trainerId) {
     const contractHours = Number(trainer.working_hours) || 0;
 
     const trainerCourses = allCourses.filter(course => course.trainer_id === trainerId);
+    const trainerWeeklyRows = allWeeklyHours.filter(row => row.trainer_id === trainerId);
 
-    const currentWeekCourses = trainerCourses.filter(course => {
-        return isInCurrentWeek(new Date(course.start_time));
+    const currentMonday = getMonday(new Date());
+    const currentWeekKey = toLocalDateKey(currentMonday);
+
+    const currentWeekViewRow = trainerWeeklyRows.find(row => {
+        return row.week_start === currentWeekKey;
     });
 
-    const selectedMonthCourses = trainerCourses.filter(course => {
-    return isInSelectedMonth(new Date(course.start_time));
+    const selectedMonthWeeklyRows = trainerWeeklyRows.filter(row => {
+        const weekDate = new Date(row.week_start + "T00:00:00");
+        return isInSelectedMonth(weekDate);
     });
+
+    const currentWeekCourses = currentWeekViewRow
+    ? trainerCourses.filter(course => {
+        return course.start_time.slice(0, 10) >= currentWeekViewRow.week_start &&
+            course.start_time.slice(0, 10) <= currentWeekViewRow.week_end;
+    })
+    : [];
 
     const todayCourses = trainerCourses.filter(course => {
         return sameDay(new Date(course.start_time), new Date());
     });
 
     const weekTotals = calculateTotals(currentWeekCourses);
-    const monthTotals = calculateTotals(selectedMonthCourses);
     const todayTotals = calculateTotals(todayCourses);
 
-    renderInfoBoxes(trainer, weekTotals, monthTotals, todayTotals, contractHours);
+    renderInfoBoxesFromView(
+        trainer,
+        currentWeekViewRow,
+        selectedMonthWeeklyRows,
+        weekTotals,
+        todayTotals,
+        contractHours
+    );
+
     renderDetailsTable(weekTotals.rows);
-    renderBarChart(selectedMonthCourses, contractHours);
-    renderMonthList(selectedMonthCourses, contractHours);
+    renderBarChartFromView(selectedMonthWeeklyRows, contractHours);
+    renderMonthListFromView(selectedMonthWeeklyRows, contractHours);
     renderMyCourses(currentWeekCourses);
 }
 
@@ -372,6 +415,155 @@ function renderInfoBoxes(trainer, weekTotals, monthTotals, todayTotals, contract
 
     document.getElementById("chartNote").innerText =
         `Maximale Wochenstunden: ${contractHours} h (${trainer.availability || "-"})`;
+}
+
+
+
+function renderInfoBoxesFromView(trainer, currentWeekViewRow, selectedMonthWeeklyRows, weekTotals, todayTotals, contractHours) {
+    const weekWorked = currentWeekViewRow
+        ? Number(currentWeekViewRow.worked_hours)
+        : 0;
+
+    const weekRemaining = currentWeekViewRow
+        ? Number(currentWeekViewRow.remaining_hours)
+        : contractHours;
+
+    const monthWorked = selectedMonthWeeklyRows.reduce((sum, row) => {
+        return sum + Number(row.worked_hours || 0);
+    }, 0);
+
+    const weekPercent = contractHours > 0
+        ? Math.min((weekWorked / contractHours) * 100, 100)
+        : 0;
+
+    document.getElementById("weekHours").innerHTML =
+        `${formatHours(weekWorked)} <span>/ ${contractHours} h</span>`;
+
+    document.getElementById("weekRemaining").innerText =
+        `${formatHours(weekRemaining)} Stunden verbleibend`;
+
+    document.getElementById("weekProgress").style.width = `${weekPercent}%`;
+
+    document.getElementById("monthHours").innerHTML =
+        `${formatHours(monthWorked)} <span>h</span>`;
+
+    document.getElementById("monthInfo").innerText =
+    "Kurszeit im ausgewählten Monat";
+
+    document.getElementById("monthProgress").style.width =
+        `${Math.min(monthWorked * 2, 100)}%`;
+
+    document.getElementById("travelHours").innerHTML =
+        `${formatHours(weekTotals.travelHours)} <span>h</span>`;
+
+    document.getElementById("travelProgress").style.width =
+        `${Math.min(weekTotals.travelHours * 20, 100)}%`;
+
+    document.getElementById("todayHours").innerHTML =
+        `${formatHours(todayTotals.totalHours)} <span>h</span>`;
+
+    if (todayTotals.rows.length === 0) {
+        document.getElementById("todayInfo").innerText = "Keine Kurse heute";
+    } else {
+        const firstCourse = todayTotals.rows[0].course;
+        const lastCourse = todayTotals.rows[todayTotals.rows.length - 1].course;
+
+        const start = firstCourse.start_time.slice(11, 16);
+        const end = lastCourse.end_time.slice(11, 16);
+
+        document.getElementById("todayInfo").innerText = `${start} - ${end} geplant`;
+    }
+
+    document.getElementById("todayProgress").style.width =
+        `${Math.min(todayTotals.totalHours * 12.5, 100)}%`;
+
+    document.getElementById("monthTitle").innerText =
+        `Arbeitsstunden - ${trainer.name}`;
+
+    document.getElementById("weekDetailsTitle").innerText =
+        `Wochendetails - ${trainer.name}`;
+
+    document.getElementById("chartNote").innerText =
+    `Maximale Wochenstunden: ${contractHours} h (${trainer.availability || "-"})`;
+}
+
+function renderBarChartFromView(rows, contractHours) {
+    const barChart = document.getElementById("barChart");
+    barChart.innerHTML = "";
+
+    if (!rows || rows.length === 0) {
+        barChart.innerHTML = `<p style="font-family: sans-serif;">Keine Kursdaten.</p>`;
+        return;
+    }
+
+    rows.forEach(row => {
+        const workedHours = Number(row.worked_hours || 0);
+        const weekNumber = getWeekNumber(new Date(row.week_start + "T00:00:00"));
+        const height = contractHours > 0
+            ? Math.max((workedHours / contractHours) * 160, 15)
+            : 15;
+
+        barChart.innerHTML += `
+            <div class="bar-item">
+                <p>${formatHours(workedHours)}h</p>
+                <div class="bar blue" style="height: ${height}px;"></div>
+                <span>KW${weekNumber}</span>
+            </div>
+        `;
+    });
+}
+
+function renderMonthListFromView(rows, contractHours) {
+    const monthList = document.getElementById("monthList");
+    monthList.innerHTML = "";
+
+    if (!rows || rows.length === 0) {
+        monthList.innerHTML = `<p style="font-family: sans-serif;">Keine Wochen vorhanden.</p>`;
+        return;
+    }
+
+    rows.forEach(row => {
+        const workedHours = Number(row.worked_hours || 0);
+        const remainingHours = Number(row.remaining_hours || 0);
+        const weekNumber = getWeekNumber(new Date(row.week_start + "T00:00:00"));
+
+        let statusClass = "ok";
+        let statusText = "OK";
+
+        if (workedHours > contractHours) {
+            statusClass = "reduced";
+            statusText = "Überlastet";
+        } else if (workedHours === 0) {
+            statusClass = "reduced";
+            statusText = "Leer";
+        } else if (remainingHours > 0) {
+            statusClass = "running";
+            statusText = "Laufend";
+        }
+
+        const firstDate = new Date(row.week_start + "T00:00:00").toLocaleDateString("de-DE", {
+            day: "2-digit",
+            month: "2-digit"
+        });
+
+        const lastDate = new Date(row.week_end + "T00:00:00").toLocaleDateString("de-DE", {
+            day: "2-digit",
+            month: "2-digit"
+        });
+
+        monthList.innerHTML += `
+            <div class="month-row">
+                <div>
+                    <p class="kw">KW${weekNumber}</p>
+                    <p class="date">${firstDate} - ${lastDate}</p>
+                </div>
+                <div class="month-right">
+                    <p>${formatHours(workedHours)} / ${contractHours} h</p>
+                    <span class="status ${statusClass}">${statusText}</span>
+                </div>
+            </div>
+        `;
+    });
 }
 
 function renderDetailsTable(rows) {
@@ -647,6 +839,7 @@ async function init() {
 
     await loadTrainers();
     await loadCourses();
+    await loadWeeklyHours();
     setupMonthButtons();
 
     if (IS_TRAINER) {
